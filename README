@@ -1,1 +1,3 @@
 Early development.  Doesn't do much right now.
+
+Tile sheet, xml, Base64, basic character movement and collision detection.  Push objects.  Teleport.  Configurable actor interaction.
