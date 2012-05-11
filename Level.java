@@ -53,6 +53,7 @@ public class Level {
     for(int i=0;i<v.size();i++) {
       String[] commaDelimited = theIni.getProperty(v.get(i).toString()).split(",");
       a.add(new Actor(commaDelimited));
+      System.out.println(commaDelimited);
     }
     return(a);
   }
