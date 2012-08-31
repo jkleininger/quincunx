@@ -3,12 +3,13 @@ import java.util.Properties;
 import javax.xml.bind.DatatypeConverter;
 import java.util.*;
 
-public class Level {
+public class Level implements Serializable {
   byte[]     _map;
   int        _W;
   int        _H;
   int[]     _walls;
   Properties theIni = new Properties();
+  ArrayList<Actor> actor = new ArrayList<Actor>();
 
   public Level(String fname) throws IOException {
     _map = readLevel(fname);
@@ -16,6 +17,8 @@ public class Level {
 
   public byte[] readLevel(String fname) throws IOException {
     theIni.loadFromXML(new FileInputStream(fname));
+    
+    writeLevel("filename.dat");
     byte[] b = DatatypeConverter.parseBase64Binary(theIni.getProperty("data"));
     System.out.println(b);
 
@@ -45,22 +48,21 @@ public class Level {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public ArrayList<Actor> getActors() {
-    ArrayList<Actor> a = new ArrayList<Actor>();
-    Enumeration e = theIni.propertyNames();
-    Vector v = new Vector();
+    Enumeration      e = theIni.propertyNames();
+    Vector           v = new Vector();
     while(e.hasMoreElements()) { v.add(e.nextElement()); }
     Collections.sort(v);
     for(int i=0;i<v.size();i++) {
       String[] commaDelimited = theIni.getProperty(v.get(i).toString()).split(",");
-      a.add(new Actor(commaDelimited));
-      System.out.println(commaDelimited);
+      actor.add(new Actor(commaDelimited));
     }
-    return(a);
+    return(actor);
   }
 
-  int[] getWalls()  { return(_walls);  }
-  byte  getB(int n) { return(_map[n]); }
-  int   getW()      { return(_W);      }
-  int   getH()      { return(_H);      }
+  int[]  getWalls()  { return(_walls);  }
+  byte   getB(int n) { return(_map[n]); }
+  int    getW()      { return(_W);      }
+  int    getH()      { return(_H);      }
+  byte[] getMap()    { return(_map);    }
 
 }

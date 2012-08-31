@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.io.*;
 
 public class quincunx extends JPanel implements KeyListener {
 
@@ -15,6 +16,7 @@ public class quincunx extends JPanel implements KeyListener {
   TileSheet        theTiles  = new TileSheet("resources/dungeon.png",10,13);
   Level            theLevel  = new Level("resources/level.xml");
   ArrayList<Actor> actors    = theLevel.getActors();
+  LevelSer         tls       = new LevelSer(theLevel);
 
   int              COLS      = theLevel.getW();  // cols on board
   int              ROWS      = theLevel.getH();  // rows on board
@@ -23,6 +25,9 @@ public class quincunx extends JPanel implements KeyListener {
     super();
     this.setFocusable(true);
     this.addKeyListener(this);
+    //readLevel("theLevelSer.dat",tls);
+    writeLevel("theLevelSer.dat",tls);
+    tls.showInfo();
   }
 
   protected void paintComponent(Graphics g) {
@@ -140,5 +145,23 @@ public class quincunx extends JPanel implements KeyListener {
 
   public void keyTyped(KeyEvent e)    { }
   public void keyReleased(KeyEvent e) { }
+
+  public void readLevel(String fName, LevelSer theLevel) throws IOException {
+    try {
+      ObjectInputStream in = new ObjectInputStream(new FileInputStream(fName));
+      theLevel = (LevelSer)in.readObject();
+      in.close();
+    } catch (ClassNotFoundException cnfe) {
+      System.out.println("doh.");
+    }
+  }
+
+  public void writeLevel(String fName, LevelSer theLevel) throws IOException {
+    ObjectOutput out = new ObjectOutputStream(new FileOutputStream(fName));
+    out.writeObject(theLevel);
+    out.close();
+  }
+
+
   
 }
