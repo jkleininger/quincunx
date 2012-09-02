@@ -27,22 +27,6 @@ public class LevelSer implements Serializable {
     actor  = theLevel.getActors();
   }
 
-/*
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public ArrayList<Actor> getActors() {
-    ArrayList<Actor> a = new ArrayList<Actor>();
-    Enumeration      e = theIni.propertyNames();
-    Vector           v = new Vector();
-    while(e.hasMoreElements()) { v.add(e.nextElement()); }
-    Collections.sort(v);
-    for(int i=0;i<v.size();i++) {
-      String[] commaDelimited = theIni.getProperty(v.get(i).toString()).split(",");
-      a.add(new Actor(commaDelimited));
-    }
-    return(a);
-  }
-*/
-
   ArrayList<Actor> getActors() {
     return (ArrayList<Actor>)actor;
   }

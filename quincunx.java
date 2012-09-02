@@ -13,21 +13,28 @@ public class quincunx extends JPanel implements KeyListener {
   int              DRADNEG   = (-1) * DRADIUS;
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
 
-  TileSheet        theTiles  = new TileSheet("resources/dungeon.png",10,13);
-  Level            theLevel  = new Level("resources/level.xml");
-  ArrayList<Actor> actors    = theLevel.getActors();
-  LevelSer         tls       = new LevelSer(theLevel);
+  TileSheet        theTiles;
+  Level            theLevel;
+  ArrayList<Actor> actors;
 
-  int              COLS      = theLevel.getW();  // cols on board
-  int              ROWS      = theLevel.getH();  // rows on board
+  int              COLS;  // cols on board
+  int              ROWS;  // rows on board
 
   public quincunx() throws IOException {
     super();
     this.setFocusable(true);
     this.addKeyListener(this);
-    //readLevel("theLevelSer.dat",tls);
-    writeLevel("theLevelSer.dat",tls);
-    tls.showInfo();
+
+    theTiles  = new TileSheet("resources/dungeon.png",10,13);
+    theLevel  = new Level("resources/level.xml");
+
+    System.out.println(theLevel.getI(389));
+    actors    = theLevel.getActors();
+
+    COLS      = theLevel.getW();
+    ROWS      = theLevel.getH();
+
+    System.out.println("Size: " + COLS + "x" + ROWS);
   }
 
   protected void paintComponent(Graphics g) {
@@ -37,10 +44,12 @@ public class quincunx extends JPanel implements KeyListener {
     if(XX<0) { XX=0; } else if((XX + VPORT.getWidth())>COLS)  { XX=COLS-(int)VPORT.getWidth();  }
     if(YY<0) { YY=0; } else if((YY + VPORT.getHeight())>ROWS) { YY=ROWS-(int)VPORT.getHeight(); }
     VPORT.setLocation(XX,YY);
+    int asdf = 0;
+    int i = 0;
     for(int c=0;c<COLS;c++) {
       for(int r=0;r<ROWS;r++) {
-        int i = r*COLS + c;
-        if(VPORT.contains(c,r)) { theTiles.drawTile(g, (int)theLevel.getB(i), c-XX, r-YY, this); }
+        i = r*COLS + c;
+        if(VPORT.contains(c,r)) { theTiles.drawTile(g, theLevel.getI(i), c-XX, r-YY, this); }
       }
     }
     for(int a=(actors.size()-1);a>=0;a--) {
@@ -55,7 +64,6 @@ public class quincunx extends JPanel implements KeyListener {
     JFrame theFrame = new JFrame("Quincunx");
     theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     quincunx panel = new quincunx();
-    //panel.setSize(theTiles.getTileSize());
     theFrame.setSize(437,358);
     theFrame.setContentPane(panel);
     theFrame.setVisible(true);
@@ -128,7 +136,7 @@ public class quincunx extends JPanel implements KeyListener {
   boolean canMoveTo(Point t) {
     Rectangle r = new Rectangle(COLS,ROWS);
     if(!r.contains(t)) { return(false); }
-    if(Arrays.binarySearch(theLevel.getWalls(),theLevel.getB(linearize(t)))>=0) { return(false); }
+    if(Arrays.binarySearch(theLevel.getWalls(),theLevel.getI(linearize(t)))>=0) { return(false); }
     int a = isOccupied(t);
     if(a>0) { return(!actors.get(a).hasInteraction()); }
     return(true);
@@ -146,10 +154,10 @@ public class quincunx extends JPanel implements KeyListener {
   public void keyTyped(KeyEvent e)    { }
   public void keyReleased(KeyEvent e) { }
 
-  public void readLevel(String fName, LevelSer theLevel) throws IOException {
+  public void readLevel(String fName, LevelSer readLevel) throws IOException {
     try {
       ObjectInputStream in = new ObjectInputStream(new FileInputStream(fName));
-      theLevel = (LevelSer)in.readObject();
+      readLevel = (LevelSer)in.readObject();
       in.close();
     } catch (ClassNotFoundException cnfe) {
       System.out.println("doh.");
