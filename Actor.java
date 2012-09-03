@@ -38,6 +38,13 @@ class Actor extends Point {
     _pdest=Integer.parseInt(args[5]);
   }
 
+  // add player
+  public Actor(int x, int y) {
+    _name = "player";
+    setLocation(x,y);
+    _index=20;
+  }
+
   interaction getInteraction() { return(this._interaction); }
 
   boolean hasInteraction() { return(this._interaction!=interaction.NONE); }

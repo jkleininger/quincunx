@@ -29,5 +29,9 @@ class Tile extends Point {
   boolean collides()   { return(collide); }
   boolean isRaised()   { return(raised);  }
 
+  void    setIndex(int i)       { index   = i; }
+  void    setCollide(boolean c) { collide = c; }
+  void    setRaised(boolean r)  { raised  = r; }
+
 }
 

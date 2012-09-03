@@ -9,7 +9,7 @@ import java.io.*;
 
 public class quincunx extends JPanel implements KeyListener {
 
-  static int       DRADIUS   = 5;
+  static int       DRADIUS   = 2;
   int              DRADNEG   = (-1) * DRADIUS;
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
 
@@ -25,16 +25,18 @@ public class quincunx extends JPanel implements KeyListener {
     this.setFocusable(true);
     this.addKeyListener(this);
 
-    theTiles  = new TileSheet("resources/dungeon.png",10,13);
-    theLevel  = new Level("resources/level.xml");
+    theTiles    = new TileSheet("resources/dungeon.png",10,13);
+    //theLevel    = new LevelOld("resources/level.xml");
+    //theLevelSer = new Level(theLevel);
+    readLevel("myLevel.dat",theLevel);
 
-    System.out.println(theLevel.getI(389));
     actors    = theLevel.getActors();
 
     COLS      = theLevel.getW();
     ROWS      = theLevel.getH();
 
-    System.out.println("Size: " + COLS + "x" + ROWS);
+    //writeLevel("serialLevel.dat",theLevel);
+
   }
 
   protected void paintComponent(Graphics g) {
@@ -136,7 +138,7 @@ public class quincunx extends JPanel implements KeyListener {
   boolean canMoveTo(Point t) {
     Rectangle r = new Rectangle(COLS,ROWS);
     if(!r.contains(t)) { return(false); }
-    if(Arrays.binarySearch(theLevel.getWalls(),theLevel.getI(linearize(t)))>=0) { return(false); }
+    if(theLevel.getTile(linearize(t)).collides()) { return(false); }
     int a = isOccupied(t);
     if(a>0) { return(!actors.get(a).hasInteraction()); }
     return(true);
@@ -154,17 +156,21 @@ public class quincunx extends JPanel implements KeyListener {
   public void keyTyped(KeyEvent e)    { }
   public void keyReleased(KeyEvent e) { }
 
-  public void readLevel(String fName, LevelSer readLevel) throws IOException {
+  public void readLevel(String fName, Level myLevel) {
     try {
       ObjectInputStream in = new ObjectInputStream(new FileInputStream(fName));
-      readLevel = (LevelSer)in.readObject();
+      theLevel = (Level)in.readObject();
       in.close();
+      System.out.println("i just read a file.");
+      theLevel.dumpMap();
     } catch (ClassNotFoundException cnfe) {
       System.out.println("doh.");
+    } catch (IOException ioe) {
+      System.out.println("ioe");
     }
   }
 
-  public void writeLevel(String fName, LevelSer theLevel) throws IOException {
+  public void writeLevel(String fName, Level theLevel) throws IOException {
     ObjectOutput out = new ObjectOutputStream(new FileOutputStream(fName));
     out.writeObject(theLevel);
     out.close();
