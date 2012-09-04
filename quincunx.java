@@ -26,8 +26,6 @@ public class quincunx extends JPanel implements KeyListener {
     this.addKeyListener(this);
 
     theTiles    = new TileSheet("resources/dungeon.png",10,13);
-    //theLevel    = new LevelOld("resources/level.xml");
-    //theLevelSer = new Level(theLevel);
     readLevel("myLevel.dat",theLevel);
 
     actors    = theLevel.getActors();
@@ -161,8 +159,6 @@ public class quincunx extends JPanel implements KeyListener {
       ObjectInputStream in = new ObjectInputStream(new FileInputStream(fName));
       theLevel = (Level)in.readObject();
       in.close();
-      System.out.println("i just read a file.");
-      theLevel.dumpMap();
     } catch (ClassNotFoundException cnfe) {
       System.out.println("doh.");
     } catch (IOException ioe) {

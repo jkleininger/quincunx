@@ -44,7 +44,6 @@ public class Level implements Serializable {
 
   void setTile(int x, int y, int i, boolean c, boolean r) {
     int myIndex = linearize(x,y);
-    System.out.println("linear -> " + myIndex);
     map.get(myIndex).setIndex(i);
     map.get(myIndex).setCollide(c);
     map.get(myIndex).setRaised(r);
@@ -55,11 +54,5 @@ public class Level implements Serializable {
   }
 
   int linearize(int x, int y) { return((y*mapWd)+x); }
-
-  void dumpMap() {
-    for(Tile myTile : map) {
-      System.out.print(myTile.getIndex());
-    }
-  }
 
 }
