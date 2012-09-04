@@ -27,7 +27,8 @@ public class qeditor extends JFrame {
     theLevel    = new Level();
 
     mainPanel     = new JPanel();
-    mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+    mainPanel.setLayout(new GridBagLayout());
+    GridBagConstraints c = new GridBagConstraints();
 
     palettePanel  = new JPanel(){
       @Override
@@ -39,9 +40,10 @@ public class qeditor extends JFrame {
       public void paintComponent(Graphics g) { paintEditor(g); }
     };
 
-
     this.add(mainPanel);
+    c.gridx=0; c.gridy=0;
     mainPanel.add(palettePanel);
+    c.gridx=0; c.gridy=1;
     mainPanel.add(qeditPanel);
 
     palettePanel.addMouseListener(new MouseAdapter() {
