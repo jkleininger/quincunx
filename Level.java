@@ -9,7 +9,7 @@ public class Level implements Serializable {
   ArrayList<Actor>  actor = new ArrayList<Actor>();
   ArrayList<Tile>   map   = new ArrayList<Tile>();
 
-  public Level() throws IOException {
+  public Level() {
   }
 
   public Level(Level theLevel) {
@@ -33,14 +33,16 @@ public class Level implements Serializable {
     }
   }
 
-  ArrayList<Actor> getActors()     { return actor;                  }
-  Actor            getActor(int a) { return actor.get(a);           }
-  ArrayList<Tile>  getMap()        { return map;                    }
-  int              getW()          { return(mapWd);                 }
-  int              getH()          { return(mapHt);                 }
-  Tile             getTile(int t)  { return map.get(t);             }
-  int              getI(int t)     { return map.get(t).getIndex();  }
-  int              getActorCount() { return actor.size();           }
+  ArrayList<Actor> getActors()      { return actor;                  }
+  Actor            getActor(int a)  { return actor.get(a);           }
+  ArrayList<Tile>  getMap()         { return map;                    }
+  int              getW()           { return mapWd;                  }
+  int              getH()           { return mapHt;                  }
+  Tile             getTile(int t)   { return map.get(t);             }
+  int              getI(int t)      { return map.get(t).getIndex();  }
+  int              getActorCount()  { return actor.size();           }
+
+  void             removeActor(Actor a)    { System.out.println("Removing " + a.getName()); actor.remove(a); }
 
   void setTile(int x, int y, int i, boolean c, boolean r) {
     int myIndex = linearize(x,y);

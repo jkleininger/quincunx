@@ -16,7 +16,7 @@ class Actor extends Point {
   ArrayList<Integer> _inventory = new ArrayList<Integer>();
 
   // portal constructor
-  public Actor(int x, int y, int t, int d) {  
+  public Actor(int x, int y, int t, int d) {
     setLocation((double)x, (double)y);
     _index = t;
     _pdest = d;
@@ -53,5 +53,7 @@ class Actor extends Point {
   boolean isPushable()     { return(this._interaction==interaction.PUSH); }
   boolean isPortal()       { return(_pdest>0);    }
   int     getDest()        { return(_pdest);      }
+  String  getName()        { return(_name);       }
+
 }
 

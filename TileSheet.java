@@ -36,7 +36,7 @@ class TileSheet {
 
   void drawTile(Graphics g, int t, int x, int y, ImageObserver IO) {
     x = x*_TILEWD;
-    y = y*_TILEHT;         
+    y = y*_TILEHT;
     g.drawImage(this.getTile(t),x,y,IO);
   }
 
@@ -52,5 +52,7 @@ class TileSheet {
   }
 
   byte[] getPorts() { return(_ports); }
+
+  int getTileCount() { return(_ROWS*_COLS); }
 
 }

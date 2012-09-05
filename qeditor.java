@@ -11,7 +11,9 @@ public class qeditor extends JFrame {
 
   JPanel           mainPanel;
   JPanel           qeditPanel;
+  JScrollPane      qeditScroll;
   JPanel           palettePanel;
+  JScrollPane      paletteScroll;
 
   int              COLS = 10;
   int              ROWS = 10;
@@ -27,23 +29,28 @@ public class qeditor extends JFrame {
     theLevel    = new Level();
 
     mainPanel     = new JPanel();
-    mainPanel.setLayout(new GridBagLayout());
-    GridBagConstraints c = new GridBagConstraints();
+    mainPanel.setLayout(new BoxLayout(mainPanel,BoxLayout.X_AXIS));
 
-    palettePanel  = new JPanel(){
+    palettePanel  = new JPanel() {
       @Override
       public void paintComponent(Graphics g) { paintPalette(g); }
     };
+    paletteScroll = new JScrollPane(palettePanel);
+    palettePanel.setPreferredSize(new Dimension((int)theTiles.getTileSize().getWidth(),(int)(theTiles.getTileSize().getHeight()*theTiles.getTileCount())));
+    paletteScroll.setMinimumSize(new Dimension((int)theTiles.getTileSize().getWidth()+50,300));
+    paletteScroll.setMaximumSize(new Dimension((int)theTiles.getTileSize().getWidth()+50,1000));
 
     qeditPanel    = new JPanel(){
       @Override
       public void paintComponent(Graphics g) { paintEditor(g); }
     };
+    qeditScroll = new JScrollPane(qeditPanel);
+    qeditPanel.setPreferredSize(new Dimension(800,800));
+    qeditScroll.setMinimumSize(new Dimension(400,400));
+    qeditScroll.setMaximumSize(new Dimension(1000,1000));
 
     this.add(mainPanel);
-    c.gridx=0; c.gridy=0;
-    mainPanel.add(palettePanel);
-    c.gridx=0; c.gridy=1;
+    mainPanel.add(paletteScroll);
     mainPanel.add(qeditPanel);
 
     palettePanel.addMouseListener(new MouseAdapter() {
@@ -56,28 +63,25 @@ public class qeditor extends JFrame {
 
     JMenuBar theMenuBar = new JMenuBar();
     JMenu theMenuFile   = new JMenu("File");
-    JMenu theMenuTiles  = new JMenu("Tiles");
+    JMenu theMenuTiles  = new JMenu("Tile Properties");
 
     JMenuItem itemLoad  = new JMenuItem("Load");
     JMenuItem itemSave  = new JMenuItem("Save");
 
-    JMenuItem itemWall  = new JMenuItem("Wall");
-    JMenuItem itemFloor = new JMenuItem("Floor");
     JCheckBoxMenuItem itemCollide = new JCheckBoxMenuItem("Collide",false);
+    JCheckBoxMenuItem itemPlayer  = new JCheckBoxMenuItem("Player",false);
 
     itemLoad.addActionListener(new ActionListener()  { public void actionPerformed(ActionEvent evt) { readLevel("myLevel.dat",theLevel); } });
     itemSave.addActionListener(new ActionListener()  { public void actionPerformed(ActionEvent evt) { writeLevel("myLevel.dat",theLevel); } });
 
-    itemWall.addActionListener(new ActionListener()    { public void actionPerformed(ActionEvent evt) { cTile=3; } });
-    itemFloor.addActionListener(new ActionListener()   { public void actionPerformed(ActionEvent evt) { cTile=1; } });
     itemCollide.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent evt) { cCollide= !cCollide; } });
+    itemCollide.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent evt) { makeNewPlayer(); } });
 
     theMenuFile.add(itemLoad);
     theMenuFile.add(itemSave);
 
-    theMenuTiles.add(itemWall);
-    theMenuTiles.add(itemFloor);
     theMenuTiles.add(itemCollide);
+    theMenuTiles.add(itemPlayer);
 
     theMenuBar.add(theMenuFile);
     theMenuBar.add(theMenuTiles);
@@ -86,7 +90,24 @@ public class qeditor extends JFrame {
 
   }
 
+  private void makeNewPlayer() {
+    for(Actor theActor : theLevel.getActors()) {
+      if(theActor.getName().equals("player")) { theLevel.removeActor(theActor); }
+    }
+  }
+
+  private void paintTools(Graphics g) {
+    g.setColor(new Color(30,30,30));
+    g.fillRect(0, 0, 100, 100);
+  }
+
   private void paintPalette(Graphics g) {
+    Dimension d = theTiles.getTileSize();
+    int       t = theTiles.getTileCount();
+    int       r = 0;
+    for(int n=0;n<t;n++) {
+      theTiles.drawTile(g,n,0,r++,this);
+    }
   }
 
   private void paintEditor(Graphics g) {
@@ -106,16 +127,19 @@ public class qeditor extends JFrame {
   public static void main(String arg[]) throws IOException {
     qeditor theFrame = new qeditor();
     theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    theFrame.setSize(437,358);
     theFrame.setVisible(true);
   }
 
   int linearize(Point p) { return( (int)p.getY()*COLS + (int)p.getX() ); }
 
   public void readLevel(String fName, Level myLevel) {
+    System.out.println("trying to read the level");
     try {
       ObjectInputStream in = new ObjectInputStream(new FileInputStream(fName));
       theLevel = (Level)in.readObject();
       in.close();
+      System.out.println("read the level");
     }
     catch (ClassNotFoundException cnfe) { }
     catch (IOException ioe) { }
@@ -139,9 +163,8 @@ public class qeditor extends JFrame {
   }
 
   public void paletteClick(int x, int y) {
-    System.out.println("Palette ("+x+","+y+")");
     int row = (int)Math.floor(y / (theTiles.getTileSize().getHeight()) );
-    int col = (int)Math.floor(x / (theTiles.getTileSize().getWidth()) );
+    cTile = row;
   }
 
 }
