@@ -20,6 +20,7 @@ public class qeditor extends JFrame {
 
   int              cTile = 2;
   boolean          cCollide = false;
+  boolean          addPlayer = false;
 
   public qeditor() throws IOException {
     super();
@@ -27,6 +28,7 @@ public class qeditor extends JFrame {
 
     theTiles    = new TileSheet("resources/dungeon.png",10,13);
     theLevel    = new Level();
+    theLevel.initialize(10,10);
 
     mainPanel     = new JPanel();
     mainPanel.setLayout(new BoxLayout(mainPanel,BoxLayout.X_AXIS));
@@ -74,8 +76,8 @@ public class qeditor extends JFrame {
     itemLoad.addActionListener(new ActionListener()  { public void actionPerformed(ActionEvent evt) { readLevel("myLevel.dat",theLevel); } });
     itemSave.addActionListener(new ActionListener()  { public void actionPerformed(ActionEvent evt) { writeLevel("myLevel.dat",theLevel); } });
 
-    itemCollide.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent evt) { cCollide= !cCollide; } });
-    itemCollide.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent evt) { makeNewPlayer(); } });
+    itemCollide.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent evt) { cCollide= !cCollide;   } });
+    itemPlayer.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent evt) { addPlayer= !addPlayer; } });
 
     theMenuFile.add(itemLoad);
     theMenuFile.add(itemSave);
@@ -90,10 +92,12 @@ public class qeditor extends JFrame {
 
   }
 
-  private void makeNewPlayer() {
+  private void makeNewPlayer(int c, int r, int i) {
+    System.out.println("Actor Count: " + theLevel.getActorCount());
     for(Actor theActor : theLevel.getActors()) {
       if(theActor.getName().equals("player")) { theLevel.removeActor(theActor); }
     }
+    theLevel.addPlayer(c,r,i);
   }
 
   private void paintTools(Graphics g) {
@@ -141,8 +145,8 @@ public class qeditor extends JFrame {
       in.close();
       System.out.println("read the level");
     }
-    catch (ClassNotFoundException cnfe) { }
-    catch (IOException ioe) { }
+    catch (ClassNotFoundException cnfe) { System.out.println("cnfe"); }
+    catch (IOException ioe) { System.out.println(ioe.getMessage()); }
     repaint();
   }
 
@@ -158,7 +162,8 @@ public class qeditor extends JFrame {
     System.out.println("Editor ("+x+","+y+")");
     int row = (int)Math.floor(y / (theTiles.getTileSize().getHeight()) );
     int col = (int)Math.floor(x / (theTiles.getTileSize().getWidth()) );
-    theLevel.setTile(col,row,cTile,cCollide,false);
+    if(addPlayer) { makeNewPlayer(col,row,cTile); }
+    else { theLevel.setTile(col,row,cTile,cCollide,false); }
     repaint();
   }
 

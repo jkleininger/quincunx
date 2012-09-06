@@ -9,7 +9,7 @@ import java.io.*;
 
 public class quincunx extends JPanel implements KeyListener {
 
-  static int       DRADIUS   = 2;
+  static int       DRADIUS   = 5;
   int              DRADNEG   = (-1) * DRADIUS;
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
 

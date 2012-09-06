@@ -2,6 +2,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 class Actor extends Point {
+  private static final long serialVersionUID = 1;
+
   String   _name;
   int      _index;                // tile image index
   int      _vradius     = 4;
@@ -39,10 +41,11 @@ class Actor extends Point {
   }
 
   // add player
-  public Actor(int x, int y) {
+  public Actor(int x, int y, int i) {
     _name = "player";
     setLocation(x,y);
-    _index=20;
+    _index = i;
+    System.out.println("added player at (" + x + "," + y + ") with index " + i);
   }
 
   interaction getInteraction() { return(this._interaction); }

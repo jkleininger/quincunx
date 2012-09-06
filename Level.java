@@ -51,8 +51,8 @@ public class Level implements Serializable {
     map.get(myIndex).setRaised(r);
   }
 
-  void addPlayer(int x, int y) {
-    actor.add(new Actor(x,y));
+  void addPlayer(int x, int y, int i) {
+    actor.add(new Actor(x,y,i));
   }
 
   int linearize(int x, int y) { return((y*mapWd)+x); }
