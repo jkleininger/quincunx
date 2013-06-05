@@ -1,6 +1,12 @@
 import java.io.*;
 import java.util.*;
 
+//import java.sql.Connection;
+//import java.sql.DriverManager;
+//import java.sql.ResultSet;
+//import java.sql.SQLException;
+//import java.sql.Statement;
+
 public class Level implements Serializable {
   private static final long serialVersionUID = 1;
 
@@ -12,6 +18,15 @@ public class Level implements Serializable {
   public Level() {
   }
 
+  public Level(Boolean b) {
+    if(b) {
+      mapWd = 100;
+      mapHt = 100;
+      initialize(100,100);
+      addPlayer(10,10,89);
+    }
+  }
+
   public Level(Level theLevel) {
     mapWd  = theLevel.getW();
     mapHt  = theLevel.getH();
@@ -20,6 +35,7 @@ public class Level implements Serializable {
   }
 
   void initialize(int w, int h) {
+    int theI;
     map.clear();
     map.ensureCapacity(w*h);
     actor.clear();
@@ -28,7 +44,8 @@ public class Level implements Serializable {
     int r,c;
     for(r=0;r<h;r++) {
       for(c=0;c<w;c++) {
-        map.add(new Tile(c,r,0,false,false));
+        theI = (int)(Math.random() * 3);
+        map.add(new Tile(c,r,theI,false,false));
       }
     }
   }

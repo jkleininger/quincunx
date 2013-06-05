@@ -14,7 +14,7 @@ public class quincunx extends JPanel implements KeyListener {
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
 
   TileSheet        theTiles;
-  Level            theLevel;
+  Level            theLevel  = new Level(true);
   ArrayList<Actor> actors;
 
   int              COLS;  // cols on board
@@ -26,7 +26,7 @@ public class quincunx extends JPanel implements KeyListener {
     this.addKeyListener(this);
 
     theTiles    = new TileSheet("resources/dungeon.png",10,13);
-    readLevel("myLevel.dat",theLevel);
+    //readLevel("myLevel.dat",theLevel);
 
     actors    = theLevel.getActors();
 
