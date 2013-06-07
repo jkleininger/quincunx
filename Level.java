@@ -39,7 +39,7 @@ public class Level {
     int r,c;
     for(r=0;r<h;r++) {
       for(c=0;c<w;c++) {
-        map.add(new Tile(c,r,9,false,false,0));
+        map.add(new Tile(c,r,false,false,0));
       }
     }
     for(int n=0;n<40;n++) {
@@ -47,23 +47,36 @@ public class Level {
       int rmY = (int)(Math.random()*(0.9*mapHt));
       createRoom(rmX,rmY);
     }
+    for(r=1;r<h-1;r++) {
+      for(c=1;c<w-1;c++) {
+        map.set(linearize(c,r),new Tile (c,r,false,false,smoothPoint(c,r)));
+      }
+    } 
+ }
+
+  int smoothPoint(int x, int y) {
+    float corners = ( getTile(x-1,y-1).getHeight() + getTile(x+1,y-1).getHeight() + getTile(x-1,y+1).getHeight() + getTile(x+1,y+1).getHeight() ) / 16;
+    float sides   = ( getTile(x-1,y).getHeight()   + getTile(x+1,y).getHeight()   + getTile(x,y-1).getHeight()   + getTile(x,y+1).getHeight()   ) / 8;
+    float center  = ( getTile(x,y).getHeight() ) / 4 ;
+
+    return((int)(corners + sides + center));
   }
 
-
-  ArrayList<Actor> getActors()      { return actor;                  }
-  Actor            getActor(int a)  { return actor.get(a);           }
-  ArrayList<Tile>  getMap()         { return map;                    }
-  int              getW()           { return mapWd;                  }
-  int              getH()           { return mapHt;                  }
-  Tile             getTile(int t)   { return map.get(t);             }
-  int              getI(int t)      { return map.get(t).getIndex();  }
-  int              getActorCount()  { return actor.size();           }
+  ArrayList<Actor> getActors()           { return actor;                   }
+  Actor            getActor(int a)       { return actor.get(a);            }
+  ArrayList<Tile>  getMap()              { return map;                     }
+  int              getW()                { return mapWd;                   }
+  int              getH()                { return mapHt;                   }
+  Tile             getTile(int t)        { return map.get(t);              }
+  Tile             getTile(int c, int r) { return map.get(linearize(c,r)); }
+  int              getActorCount()       { return actor.size();            }
+  int              getHeight(int t)      { return map.get(t).getHeight();  }
 
   void             removeActor(Actor a)    { System.out.println("Removing " + a.getName()); actor.remove(a); }
 
   void setTile(int x, int y, int i, boolean c, boolean r) {
     int myIndex = linearize(x,y);
-    map.get(myIndex).setIndex(i);
+    map.get(myIndex).setHeight(i);
     map.get(myIndex).setCollide(c);
     map.get(myIndex).setRaised(r);
   }
@@ -86,7 +99,7 @@ public class Level {
     for(int r=y;r<y+roomHt;r++) {
       for(int c=x;c<x+roomWd;c++) {
         int theI = (int)(Math.random()*10);
-        map.set(r*mapWd+c,new Tile(c,r,theI,false,false,0));
+        map.set(r*mapWd+c,new Tile(c,r,false,false,theI));
       }
     }
   }

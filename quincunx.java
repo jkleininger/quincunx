@@ -48,7 +48,7 @@ public class quincunx extends JPanel implements KeyListener {
     for(int c=0;c<COLS;c++) {
       for(int r=0;r<ROWS;r++) {
         i = r*COLS + c;
-        if(VPORT.contains(c,r)) { theTiles.drawTile(g, theLevel.getI(i), c-XX, r-YY, this); }
+        if(VPORT.contains(c,r)) { theTiles.drawTile(g, theLevel.getHeight(i), c-XX, r-YY, this); }
       }
     }
     for(int a=(actors.size()-1);a>=0;a--) {
