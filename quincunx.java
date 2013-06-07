@@ -9,7 +9,7 @@ import java.io.*;
 
 public class quincunx extends JPanel implements KeyListener {
 
-  static int       DRADIUS   = 5;
+  static int       DRADIUS   = 15;
   int              DRADNEG   = (-1) * DRADIUS;
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
 
@@ -25,7 +25,7 @@ public class quincunx extends JPanel implements KeyListener {
     this.setFocusable(true);
     this.addKeyListener(this);
 
-    theTiles    = new TileSheet("resources/dungeon.png",10,13);
+    theTiles    = new TileSheet("resources/height.png",10,10);
     //readLevel("myLevel.dat",theLevel);
 
     actors    = theLevel.getActors();
@@ -44,7 +44,6 @@ public class quincunx extends JPanel implements KeyListener {
     if(XX<0) { XX=0; } else if((XX + VPORT.getWidth())>COLS)  { XX=COLS-(int)VPORT.getWidth();  }
     if(YY<0) { YY=0; } else if((YY + VPORT.getHeight())>ROWS) { YY=ROWS-(int)VPORT.getHeight(); }
     VPORT.setLocation(XX,YY);
-    int asdf = 0;
     int i = 0;
     for(int c=0;c<COLS;c++) {
       for(int r=0;r<ROWS;r++) {
