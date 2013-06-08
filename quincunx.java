@@ -134,6 +134,9 @@ public class quincunx extends JPanel implements KeyListener {
 
   boolean canMoveTo(Point t) {
     Rectangle r = new Rectangle(COLS,ROWS);
+    int destHeight = theLevel.getHeight((int)t.getX(),(int)t.getY());
+    int srcHeight  = theLevel.getHeight( (int)actors.get(0).getX(), (int)actors.get(0).getY() );
+    if(Math.abs(destHeight-srcHeight) > 1) { return(false); }
     if(!r.contains(t)) { return(false); }
     if(theLevel.getTile(linearize(t)).collides()) { return(false); }
     int a = isOccupied(t);

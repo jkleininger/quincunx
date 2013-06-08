@@ -8,8 +8,11 @@ public class Level {
   int               mapHt;
   ArrayList<Actor>  actor = new ArrayList<Actor>();
   ArrayList<Tile>   map   = new ArrayList<Tile>();
+  int               mapHeight = 10;
 
-  Point             actorOrigin = new Point(-1,-1);
+  Point             actorOrigin = new Point(10,10);
+
+  int               pIndex = 90;
 
   public Level() {
   }
@@ -19,7 +22,7 @@ public class Level {
       mapWd = 100;
       mapHt = 100;
       initialize(mapWd,mapHt);
-      addPlayer((int)actorOrigin.getX(),(int)actorOrigin.getY(),91);
+      addPlayer((int)actorOrigin.getX(),(int)actorOrigin.getY());
     }
   }
 
@@ -42,37 +45,73 @@ public class Level {
         map.add(new Tile(c,r,false,false,0));
       }
     }
-    for(int n=0;n<40;n++) {
+
+    makeBlobs(40);
+    smoothMap(1);
+    compressMap(3);
+
+  }
+
+  void chopMap(int chopHeight) {
+    for(int r=0;r<mapHt;r++) {
+      for(int c=0;c<mapWd;c++) {
+        if(getHeight(c,r) > chopHeight) {
+          map.set(linearize(c,r), new Tile(c,r,false,false,chopHeight) );
+        }
+      }
+    }
+  }
+
+  void compressMap(int levels) {
+    float factor = (mapHeight+1) / levels;
+    for(int r=0;r<mapHt;r++) {
+      for(int c=0;c<mapWd;c++) {
+        int newHeight = (int)(Math.ceil( getHeight(c,r) / factor ));
+        map.set(linearize(c,r), new Tile(c,r,false,false,newHeight ));
+      }
+    }
+    chopMap(levels-1);
+  }
+
+  void makeBlobs(int b) {
+    for(int n=0;n<b;n++) {
       int rmX = (int)(Math.random()*(0.9*mapWd));
       int rmY = (int)(Math.random()*(0.9*mapHt));
-      createRoom(rmX,rmY);
+      createBlob(rmX,rmY);
     }
-    for(r=1;r<h-1;r++) {
-      for(c=1;c<w-1;c++) {
-        map.set(linearize(c,r),new Tile (c,r,false,false,smoothPoint(c,r)));
+  }
+
+  void smoothMap(int iterations) {
+    for(int i=0;i<iterations;i++) {
+      for(int r=1;r<mapHt-1;r++) {
+        for(int c=1;c<mapWd-1;c++) {
+          map.set(linearize(c,r),new Tile (c,r,false,false,smoothPoint(c,r)));
+        }
       }
     } 
- }
+  }
 
   int smoothPoint(int x, int y) {
-    float corners = ( getTile(x-1,y-1).getHeight() + getTile(x+1,y-1).getHeight() + getTile(x-1,y+1).getHeight() + getTile(x+1,y+1).getHeight() ) / 16;
-    float sides   = ( getTile(x-1,y).getHeight()   + getTile(x+1,y).getHeight()   + getTile(x,y-1).getHeight()   + getTile(x,y+1).getHeight()   ) / 8;
-    float center  = ( getTile(x,y).getHeight() ) / 4 ;
+    float corners = ( getHeight(x-1,y-1) + getHeight(x+1,y-1) + getHeight(x-1,y+1) + getHeight(x+1,y+1) ) / 16;
+    float sides   = ( getHeight(x-1,y)   + getHeight(x+1,y)   + getHeight(x,y-1)   + getHeight(x,y+1)   ) / 8;
+    float center  = ( getHeight(x,y) ) / 4 ;
 
     return((int)(corners + sides + center));
   }
 
-  ArrayList<Actor> getActors()           { return actor;                   }
-  Actor            getActor(int a)       { return actor.get(a);            }
-  ArrayList<Tile>  getMap()              { return map;                     }
-  int              getW()                { return mapWd;                   }
-  int              getH()                { return mapHt;                   }
-  Tile             getTile(int t)        { return map.get(t);              }
-  Tile             getTile(int c, int r) { return map.get(linearize(c,r)); }
-  int              getActorCount()       { return actor.size();            }
-  int              getHeight(int t)      { return map.get(t).getHeight();  }
-
-  void             removeActor(Actor a)    { System.out.println("Removing " + a.getName()); actor.remove(a); }
+  ArrayList<Actor> getActors()             { return actor;                     }
+  Actor            getActor(int a)         { return actor.get(a);              }
+  ArrayList<Tile>  getMap()                { return map;                       }
+  int              getW()                  { return mapWd;                     }
+  int              getH()                  { return mapHt;                     }
+  Tile             getTile(int t)          { return map.get(t);                }
+  Tile             getTile(int c, int r)   { return map.get(linearize(c,r));   }
+  int              getActorCount()         { return actor.size();              }
+  int              getHeight(int t)        { return map.get(t).getHeight();    }
+  int              getHeight(int c, int r) { return getTile(c,r).getHeight();  }
+  void             removeActor(Actor a)    { actor.remove(a);                  }
+  void             addPlayer(int x, int y) { actor.add(new Actor(x,y,pIndex)); }
+  int              linearize(int x, int y) { return((y*mapWd)+x);              }
 
   void setTile(int x, int y, int i, boolean c, boolean r) {
     int myIndex = linearize(x,y);
@@ -81,24 +120,15 @@ public class Level {
     map.get(myIndex).setRaised(r);
   }
 
-  void addPlayer(int x, int y, int i) {
-    actor.add(new Actor(x,y,i));
-  }
+  void createBlob(int x, int y) {
+    int blobWd = (int)(Math.random()*12)+8;
+    int blobHt = (int)(Math.random()*12)+8;
+    x=(x+blobWd)>mapWd?mapWd-x-1:x;
+    y=(y+blobHt)>mapHt?mapHt-y-1:y;
 
-  int linearize(int x, int y) { return((y*mapWd)+x); }
-
-  void createRoom(int x, int y) {
-    int roomWd = (int)(Math.random()*12)+8;
-    int roomHt = (int)(Math.random()*12)+8;
-    x=(x+roomWd)>mapWd?mapWd-x-1:x;
-    y=(y+roomHt)>mapHt?mapHt-y-1:y;
-
-    actorOrigin.setLocation( (int)((x+roomWd)/2) , (int)((y+roomHt)/2) );
-
-    System.out.println("creating (" + roomWd + "x" + roomHt + ") room at (" + x + "," + y + ")");
-    for(int r=y;r<y+roomHt;r++) {
-      for(int c=x;c<x+roomWd;c++) {
-        int theI = (int)(Math.random()*10);
+    for(int r=y;r<y+blobHt;r++) {
+      for(int c=x;c<x+blobWd;c++) {
+        int theI = (int)Math.floor(Math.random()*mapHeight);
         map.set(r*mapWd+c,new Tile(c,r,false,false,theI));
       }
     }
