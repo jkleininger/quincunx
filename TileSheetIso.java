@@ -38,8 +38,15 @@ class TileSheetIso {
   void drawTile(Graphics g, int t, int x, int y, int e, ImageObserver IO) {
     int xt = (x * (_TILEWD / 2)) + (y * (_TILEWD / 2));
     int yt = 128 + (y*(_TILEHT/4)) - (x * (_TILEHT / 4));
-    System.out.println("Tile " + t + " height: " + e);
-    yt = yt - (e * _TILEHT / 2);
+    for(int ce=0;ce<=e;ce++) {
+      yt = yt - (ce * _TILEHT / 2);
+      g.drawImage(this.getTile(t),xt,yt,IO);
+    }
+  }
+
+  void drawActor(Graphics g, int t, int x, int y, int e, ImageObserver IO) {
+    int xt = (x * (_TILEWD / 2)) + (y * (_TILEWD / 2));
+    int yt = 128 + (y*(_TILEHT/4)) - (x * (_TILEHT / 4));
     g.drawImage(this.getTile(t),xt,yt,IO);
   }
 

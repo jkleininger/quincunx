@@ -8,19 +8,19 @@ public class Level {
   int               mapHt;
   ArrayList<Actor>  actor = new ArrayList<Actor>();
   ArrayList<Tile>   map   = new ArrayList<Tile>();
-  int               maxElevation = 10;
+  int               maxElevation = 5;
 
-  Point             actorOrigin = new Point(10,10);
+  Point             actorOrigin = new Point(4,4);
 
-  int               pIndex = 90;
+  int               pIndex = 5;
 
   public Level() {
   }
 
   public Level(Boolean b) {
     if(b) {
-      mapWd = 10;
-      mapHt = 10;
+      mapWd = 100;
+      mapHt = 100;
       initialize(mapWd,mapHt);
       addPlayer((int)actorOrigin.getX(),(int)actorOrigin.getY());
     }
@@ -46,10 +46,10 @@ public class Level {
       }
     }
 
-    //flatten up from the bottom as welll to eliminate 1x1 holes?
-    makeBlobs(5);
+    //flatten up from the bottom as well to eliminate 1x1 holes?
+    makeBlobs(40);
     //smoothMap(1);
-    //compressMap(3);
+    //compressMap(4);
     //chopMap(1);
     //updateCollides();
 
@@ -78,8 +78,8 @@ public class Level {
 
   void makeBlobs(int b) {
     for(int n=0;n<b;n++) {
-      int rmX = (int)(Math.random()*(0.9*mapWd));
-      int rmY = (int)(Math.random()*(0.9*mapHt));
+      int rmX = (int)(Math.random()*(mapWd-1));
+      int rmY = (int)(Math.random()*(mapHt-1));
       createBlob(rmX,rmY);
     }
   }
@@ -113,20 +113,20 @@ public class Level {
     return((int)(corners + sides + center));
   }
 
-  ArrayList<Actor> getActors()             { return actor;                     }
-  Actor            getActor(int a)         { return actor.get(a);              }
-  ArrayList<Tile>  getMap()                { return map;                       }
-  int              getW()                  { return mapWd;                     }
-  int              getH()                  { return mapHt;                     }
-  Tile             getTile(int t)          { return map.get(t);                }
-  Tile             getTile(int c, int r)   { return map.get(linearize(c,r));   }
-  int              getActorCount()         { return actor.size();              }
-  int              getElevation(int t)        { return map.get(t).getElevation();    }
-  int              getElevation(int c, int r) { return getTile(c,r).getElevation();  }
-  void             removeActor(Actor a)    { actor.remove(a);                  }
-  void             addPlayer(int x, int y) { actor.add(new Actor(x,y,pIndex)); }
-  int              linearize(int x, int y) { return((y*mapWd)+x);              }
-  boolean          collides(int c, int r)  { return(getTile(c,r).collides());  }
+  ArrayList<Actor> getActors()                { return actor;                       }
+  Actor            getActor(int a)            { return actor.get(a);                }
+  ArrayList<Tile>  getMap()                   { return map;                         }
+  int              getW()                     { return mapWd;                       }
+  int              getH()                     { return mapHt;                       }
+  Tile             getTile(int t)             { return map.get(t);                  }
+  Tile             getTile(int c, int r)      { return map.get(linearize(c,r));     }
+  int              getActorCount()            { return actor.size();                }
+  int              getElevation(int t)        { return map.get(t).getElevation();   }
+  int              getElevation(int c, int r) { return getTile(c,r).getElevation(); }
+  void             removeActor(Actor a)       { actor.remove(a);                    }
+  void             addPlayer(int x, int y)    { actor.add(new Actor(x,y,pIndex));   }
+  int              linearize(int x, int y)    { return((y*mapWd)+x);                }
+  boolean          collides(int c, int r)     { return(getTile(c,r).collides());    }
 
   void setTile(int x, int y, int i, boolean c, boolean r) {
     int myIndex = linearize(x,y);
@@ -136,15 +136,15 @@ public class Level {
   }
 
   void createBlob(int x, int y) {
-    int blobWd = (int)(Math.random()*5)+2;
-    int blobHt = (int)(Math.random()*5)+2;
+    int blobWd = (int)(Math.random()*(mapWd/6))+8;
+    int blobHt = (int)(Math.random()*(mapHt/6))+8;
     x=(x+blobWd)>mapWd?mapWd-x-1:x;
     y=(y+blobHt)>mapHt?mapHt-y-1:y;
 
     for(int r=y;r<y+blobHt;r++) {
       for(int c=x;c<x+blobWd;c++) {
         int theI = (int)Math.floor(Math.random()*maxElevation);
-        map.set(r*mapWd+c,new Tile(c,r,false,false,1));
+        getTile(c,r).setElevation(theI);
       }
     }
   }

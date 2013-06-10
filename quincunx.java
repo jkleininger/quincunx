@@ -27,7 +27,7 @@ public class quincunx extends JPanel implements KeyListener {
     this.addKeyListener(this);
 
     //theTiles    = new TileSheet("resources/height.png",10,10);
-    theTilesIso = new TileSheetIso("resources/onecube.png",2,1);
+    theTilesIso = new TileSheetIso("resources/5cubes.png",6,1);
 
     actors    = theLevel.getActors();
 
@@ -38,12 +38,17 @@ public class quincunx extends JPanel implements KeyListener {
 
   protected void paintMapIso(Graphics g) {
     int e = 0;
-    for(int c=9;c>=0;c--) {
-      for(int r=0;r<10;r++) {
+    for(int c=COLS-1;c>=0;c--) {
+      for(int r=0;r<ROWS;r++) {
         e = theLevel.getElevation(r*COLS+c);
-        theTilesIso.drawTile(g, 0, c, r, e, this);
+        theTilesIso.drawTile(g, e, c, r, e, this);
       }
     }
+    int actorX = (int)actors.get(0).getX();
+    int actorY = (int)actors.get(0).getY();
+    int actorI = (int)actors.get(0).getI();
+    int actorE = theLevel.getElevation(actorY*COLS+actorX);
+    theTilesIso.drawActor(g,actorI,actorX,actorY,actorE,this);
   }
 
   protected void paintMapOrtho(Graphics g) {
@@ -104,6 +109,10 @@ public class quincunx extends JPanel implements KeyListener {
     t.translate((int)actors.get(0).getX(),(int)actors.get(0).getY());
     p.translate((int)actors.get(0).getX(),(int)actors.get(0).getY());
 
+    System.out.println("Moving to (" + t.getX() + "," + t.getY() + ")");
+    actors.get(0).setLocation(t);
+
+/*
     int q = isOccupied(t);
     if(q>0) {
       switch(actors.get(q).getInteraction()) {
@@ -136,7 +145,7 @@ public class quincunx extends JPanel implements KeyListener {
         actors.get(0).setLocation(t);
       }
     }
-
+*/
     repaint();
   }
 

@@ -10,7 +10,6 @@ class Tile extends Point {
     collide   = c;
     raised    = r;
     elevation = e;
-    System.out.println("New tile elevation = " + e);
   }
 
   public Tile(Point p, boolean c, boolean r, int e) {
@@ -30,12 +29,9 @@ class Tile extends Point {
   boolean isRaised()      { return(raised);    }
   int     getElevation()  { return(elevation); }
 
-  void    setCollide(boolean c) { collide = c; }
-  void    setRaised(boolean r)  { raised  = r; }
-  void    setElevation(int e)   { 
-    //elevation  = e;
-    System.out.println("Someone tried to change my elevation to: " + e);
-  }
+  void    setCollide(boolean c) { collide = c;    }
+  void    setRaised(boolean r)  { raised  = r;    }
+  void    setElevation(int e)   { elevation  = e; }
 
 }
 
