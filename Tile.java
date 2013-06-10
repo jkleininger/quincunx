@@ -3,35 +3,39 @@ import java.awt.Point;
 class Tile extends Point {
   boolean  collide   = false;
   boolean  raised    = false;  // true = actors move behind object
-  int      height    = 0;      // -1 = bottomless pit?
+  int      elevation = 0;      // -1 = bottomless pit?
 
-  public Tile(int x, int y, boolean c, boolean r, int h) {
+  public Tile(int x, int y, boolean c, boolean r, int e) {
     setLocation(x, y);
-    collide = c;
-    raised  = r;
-    height  = h;
+    collide   = c;
+    raised    = r;
+    elevation = e;
+    System.out.println("New tile elevation = " + e);
   }
 
-  public Tile(Point p, boolean c, boolean r, int h) {
+  public Tile(Point p, boolean c, boolean r, int e) {
     setLocation(p);
-    collide = c;
-    raised  = r;
-    height  = h;
+    collide    = c;
+    raised     = r;
+    elevation  = e;
   }
 
   public Tile(Tile t) { 
-    collide = t.collides();
-    raised  = t.isRaised();
-    height  = t.getHeight();
+    collide    = t.collides();
+    raised     = t.isRaised();
+    elevation  = t.getElevation();
   }
 
-  boolean collides()   { return(collide); }
-  boolean isRaised()   { return(raised);  }
-  int     getHeight()  { return(height);  }
+  boolean collides()      { return(collide);   }
+  boolean isRaised()      { return(raised);    }
+  int     getElevation()  { return(elevation); }
 
   void    setCollide(boolean c) { collide = c; }
   void    setRaised(boolean r)  { raised  = r; }
-  void    setHeight(int h)      { height  = h; }
+  void    setElevation(int e)   { 
+    //elevation  = e;
+    System.out.println("Someone tried to change my elevation to: " + e);
+  }
 
 }
 

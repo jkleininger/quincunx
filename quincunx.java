@@ -26,7 +26,7 @@ public class quincunx extends JPanel implements KeyListener {
     this.setFocusable(true);
     this.addKeyListener(this);
 
-    theTiles    = new TileSheet("resources/height.png",10,10);
+    //theTiles    = new TileSheet("resources/height.png",10,10);
     theTilesIso = new TileSheetIso("resources/onecube.png",2,1);
 
     actors    = theLevel.getActors();
@@ -37,9 +37,11 @@ public class quincunx extends JPanel implements KeyListener {
   }
 
   protected void paintMapIso(Graphics g) {
-    for(int c=2;c>=0;c--) {
-      for(int r=0;r<3;r++) {
-        theTilesIso.drawTile(g, 0, c, r, this);
+    int e = 0;
+    for(int c=9;c>=0;c--) {
+      for(int r=0;r<10;r++) {
+        e = theLevel.getElevation(r*COLS+c);
+        theTilesIso.drawTile(g, 0, c, r, e, this);
       }
     }
   }
@@ -55,7 +57,7 @@ public class quincunx extends JPanel implements KeyListener {
     for(int c=0;c<COLS;c++) {
       for(int r=0;r<ROWS;r++) {
         i = r*COLS + c;
-        if(VPORT.contains(c,r)) { theTiles.drawTile(g, theLevel.getHeight(i), c-XX, r-YY, this); }
+        if(VPORT.contains(c,r)) { theTiles.drawTile(g, theLevel.getElevation(i), c-XX, r-YY, this); }
       }
     }
     for(int a=(actors.size()-1);a>=0;a--) {
@@ -145,8 +147,8 @@ public class quincunx extends JPanel implements KeyListener {
 
   boolean canMoveTo(Point t) {
     Rectangle r = new Rectangle(COLS,ROWS);
-    int destHeight = theLevel.getHeight((int)t.getX(),(int)t.getY());
-    int srcHeight  = theLevel.getHeight( (int)actors.get(0).getX(), (int)actors.get(0).getY() );
+    int destHeight = theLevel.getElevation((int)t.getX(),(int)t.getY());
+    int srcHeight  = theLevel.getElevation( (int)actors.get(0).getX(), (int)actors.get(0).getY() );
     if(Math.abs(destHeight-srcHeight) > 1) { return(false); }
     if(!r.contains(t)) { return(false); }
     if(theLevel.collides((int)t.getX(),(int)t.getY())) { return(false); }
