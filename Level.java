@@ -42,13 +42,15 @@ public class Level {
     int r,c;
     for(r=0;r<h;r++) {
       for(c=0;c<w;c++) {
-        map.add(new Tile(c,r,false,false,0));
+        map.add(new Tile(c,r,true,false,0));
       }
     }
 
+    //flatten up from the bottom as welll to eliminate 1x1 holes?
     makeBlobs(40);
     smoothMap(1);
-    compressMap(3);
+    compressMap(4);
+    updateCollides();
 
   }
 
@@ -56,7 +58,7 @@ public class Level {
     for(int r=0;r<mapHt;r++) {
       for(int c=0;c<mapWd;c++) {
         if(getHeight(c,r) > chopHeight) {
-          map.set(linearize(c,r), new Tile(c,r,false,false,chopHeight) );
+          map.get(linearize(c,r)).setHeight(chopHeight);
         }
       }
     }
@@ -67,7 +69,7 @@ public class Level {
     for(int r=0;r<mapHt;r++) {
       for(int c=0;c<mapWd;c++) {
         int newHeight = (int)(Math.ceil( getHeight(c,r) / factor ));
-        map.set(linearize(c,r), new Tile(c,r,false,false,newHeight ));
+        map.get(linearize(c,r)).setHeight(newHeight);
       }
     }
     chopMap(levels-1);
@@ -85,10 +87,21 @@ public class Level {
     for(int i=0;i<iterations;i++) {
       for(int r=1;r<mapHt-1;r++) {
         for(int c=1;c<mapWd-1;c++) {
-          map.set(linearize(c,r),new Tile (c,r,false,false,smoothPoint(c,r)));
+          map.get(linearize(c,r)).setHeight(smoothPoint(c,r));
         }
       }
     } 
+  }
+
+  void updateCollides() {
+    int i = 0; 
+    for(int r=0;r<mapHt;r++) {
+      for(int c=0;c<mapWd;c++) {
+        i = linearize(c,r);
+        if(map.get(i).getHeight() == 0) { map.get(i).setCollide(true); }
+        else { map.get(i).setCollide(false); }
+      }
+    }
   }
 
   int smoothPoint(int x, int y) {
@@ -112,6 +125,7 @@ public class Level {
   void             removeActor(Actor a)    { actor.remove(a);                  }
   void             addPlayer(int x, int y) { actor.add(new Actor(x,y,pIndex)); }
   int              linearize(int x, int y) { return((y*mapWd)+x);              }
+  boolean          collides(int c, int r)  { return(getTile(c,r).collides());  }
 
   void setTile(int x, int y, int i, boolean c, boolean r) {
     int myIndex = linearize(x,y);
@@ -129,7 +143,7 @@ public class Level {
     for(int r=y;r<y+blobHt;r++) {
       for(int c=x;c<x+blobWd;c++) {
         int theI = (int)Math.floor(Math.random()*mapHeight);
-        map.set(r*mapWd+c,new Tile(c,r,false,false,theI));
+        map.set(r*mapWd+c,new Tile(c,r,false,false,0));
       }
     }
   }

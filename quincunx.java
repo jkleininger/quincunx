@@ -14,6 +14,7 @@ public class quincunx extends JPanel implements KeyListener {
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
 
   TileSheet        theTiles;
+  TileSheetIso     theTilesIso;
   Level            theLevel  = new Level(true);
   ArrayList<Actor> actors;
 
@@ -26,18 +27,24 @@ public class quincunx extends JPanel implements KeyListener {
     this.addKeyListener(this);
 
     theTiles    = new TileSheet("resources/height.png",10,10);
-    //readLevel("myLevel.dat",theLevel);
+    theTilesIso = new TileSheetIso("resources/onecube.png",2,1);
 
     actors    = theLevel.getActors();
 
     COLS      = theLevel.getW();
     ROWS      = theLevel.getH();
 
-    //writeLevel("serialLevel.dat",theLevel);
-
   }
 
-  protected void paintComponent(Graphics g) {
+  protected void paintMapIso(Graphics g) {
+    for(int c=2;c>=0;c--) {
+      for(int r=0;r<3;r++) {
+        theTilesIso.drawTile(g, 0, c, r, this);
+      }
+    }
+  }
+
+  protected void paintMapOrtho(Graphics g) {
     VPORT.setLocation(actors.get(0));
     VPORT.translate(DRADNEG,DRADNEG);
     int XX=(int)VPORT.getX(); int YY=(int)VPORT.getY();
@@ -57,6 +64,10 @@ public class quincunx extends JPanel implements KeyListener {
       }
     }
     drawStatus(g, 321, 0);
+  }
+
+  protected void paintComponent(Graphics g) {
+    paintMapIso(g);
   }
 
   public static void main(String arg[]) throws IOException {
@@ -138,7 +149,7 @@ public class quincunx extends JPanel implements KeyListener {
     int srcHeight  = theLevel.getHeight( (int)actors.get(0).getX(), (int)actors.get(0).getY() );
     if(Math.abs(destHeight-srcHeight) > 1) { return(false); }
     if(!r.contains(t)) { return(false); }
-    if(theLevel.getTile(linearize(t)).collides()) { return(false); }
+    if(theLevel.collides((int)t.getX(),(int)t.getY())) { return(false); }
     int a = isOccupied(t);
     if(a>0) { return(!actors.get(a).hasInteraction()); }
     return(true);

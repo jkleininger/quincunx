@@ -3,7 +3,7 @@ import java.awt.Point;
 class Tile extends Point {
   boolean  collide   = false;
   boolean  raised    = false;  // true = actors move behind object
-  int      height    = 0;      // -1 = bottomless pit
+  int      height    = 0;      // -1 = bottomless pit?
 
   public Tile(int x, int y, boolean c, boolean r, int h) {
     setLocation(x, y);
