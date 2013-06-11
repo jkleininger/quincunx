@@ -2,18 +2,16 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 class Actor extends Point {
-  private static final long serialVersionUID = 1;
-
-  String   _name;
-  int      _index;                // tile image index
-  int      _vradius     = 4;
-  int      _pdest       = 0;      // actor id of portal destination
-  int      _hp          = 100;    // hit points
-  int      _sp          = 100;    // special points
-  int      _ai          = 0;      // ai type
-  enum     interaction { NONE, COLLIDE, PUSH, PULL, TALK, HIT, PORT }
-  enum     facing      {N,S,E,W}
+  String      _name;
+  int         _index;                // tile image index
+  int         _vradius     = 4;
+  int         _pdest       = 0;      // actor id of portal destination
+  int         _hp          = 100;    // hit points
+  int         _sp          = 100;    // special points
+  int         _ai          = 0;      // ai type
   interaction _interaction = interaction.NONE;
+  enum        interaction   { NONE, COLLIDE, PUSH, PULL, TALK, HIT, PORT }
+  enum        facing        { N, S, E, W }
 
   ArrayList<Integer> _inventory = new ArrayList<Integer>();
 
@@ -45,7 +43,6 @@ class Actor extends Point {
     _name = "player";
     setLocation(x,y);
     _index = i;
-    System.out.println("added player at (" + x + "," + y + ") with index " + i);
   }
 
   interaction getInteraction() { return(this._interaction); }

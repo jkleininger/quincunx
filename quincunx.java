@@ -14,7 +14,6 @@ public class quincunx extends JPanel implements KeyListener {
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
 
   TileSheet        theTiles;
-  TileSheetIso     theTilesIso;
   Level            theLevel  = new Level(true);
   ArrayList<Actor> actors;
 
@@ -27,7 +26,6 @@ public class quincunx extends JPanel implements KeyListener {
     this.addKeyListener(this);
 
     theTiles    = new TileSheet("resources/height.png",10,10);
-    theTilesIso = new TileSheetIso("resources/5cubes.png",6,1);
 
     actors    = theLevel.getActors();
 
@@ -36,6 +34,7 @@ public class quincunx extends JPanel implements KeyListener {
 
   }
 
+  /*
   protected void paintMapIso(Graphics g) {
     int e = 0;
     for(int c=COLS-1;c>=0;c--) {
@@ -50,6 +49,7 @@ public class quincunx extends JPanel implements KeyListener {
     int actorE = theLevel.getElevation(actorY*COLS+actorX);
     theTilesIso.drawActor(g,actorI,actorX,actorY,actorE,this);
   }
+  */
 
   protected void paintMapOrtho(Graphics g) {
     VPORT.setLocation(actors.get(0));
@@ -70,7 +70,7 @@ public class quincunx extends JPanel implements KeyListener {
         theTiles.drawTile(g,actors.get(a).getI(),((int)actors.get(a).getX()-XX),((int)actors.get(a).getY()-YY),this);
       }
     }
-    drawStatus(g, 321, 0);
+    //drawStatus(g, 321, 0);
   }
 
   protected void paintComponent(Graphics g) {
@@ -109,10 +109,6 @@ public class quincunx extends JPanel implements KeyListener {
     t.translate((int)actors.get(0).getX(),(int)actors.get(0).getY());
     p.translate((int)actors.get(0).getX(),(int)actors.get(0).getY());
 
-    System.out.println("Moving to (" + t.getX() + "," + t.getY() + ")");
-    actors.get(0).setLocation(t);
-
-/*
     int q = isOccupied(t);
     if(q>0) {
       switch(actors.get(q).getInteraction()) {
@@ -145,7 +141,6 @@ public class quincunx extends JPanel implements KeyListener {
         actors.get(0).setLocation(t);
       }
     }
-*/
     repaint();
   }
 
@@ -156,11 +151,14 @@ public class quincunx extends JPanel implements KeyListener {
 
   boolean canMoveTo(Point t) {
     Rectangle r = new Rectangle(COLS,ROWS);
+    if(!r.contains(t)) { return(false); }
+
     int destHeight = theLevel.getElevation((int)t.getX(),(int)t.getY());
     int srcHeight  = theLevel.getElevation( (int)actors.get(0).getX(), (int)actors.get(0).getY() );
     if(Math.abs(destHeight-srcHeight) > 1) { return(false); }
-    if(!r.contains(t)) { return(false); }
+    
     if(theLevel.collides((int)t.getX(),(int)t.getY())) { return(false); }
+    
     int a = isOccupied(t);
     if(a>0) { return(!actors.get(a).hasInteraction()); }
     return(true);
@@ -177,25 +175,5 @@ public class quincunx extends JPanel implements KeyListener {
 
   public void keyTyped(KeyEvent e)    { }
   public void keyReleased(KeyEvent e) { }
-
-  public void readLevel(String fName, Level myLevel) {
-    try {
-      ObjectInputStream in = new ObjectInputStream(new FileInputStream(fName));
-      theLevel = (Level)in.readObject();
-      in.close();
-    } catch (ClassNotFoundException cnfe) {
-      System.out.println("doh.");
-    } catch (IOException ioe) {
-      System.out.println("ioe");
-    }
-  }
-
-  public void writeLevel(String fName, Level theLevel) throws IOException {
-    ObjectOutput out = new ObjectOutputStream(new FileOutputStream(fName));
-    out.writeObject(theLevel);
-    out.close();
-  }
-
-
   
 }

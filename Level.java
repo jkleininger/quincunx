@@ -10,7 +10,7 @@ public class Level {
   ArrayList<Tile>   map   = new ArrayList<Tile>();
   int               maxElevation = 9;
 
-  Point             actorOrigin = new Point(4,4);
+  Point             actorOrigin = new Point(0,0);
 
   int               pIndex = 90;
 
@@ -22,7 +22,6 @@ public class Level {
       mapWd = 100;
       mapHt = 100;
       initialize(mapWd,mapHt);
-      addPlayer((int)actorOrigin.getX(),(int)actorOrigin.getY());
     }
   }
 
@@ -46,12 +45,47 @@ public class Level {
       }
     }
 
-    //flatten up from the bottom as well to eliminate 1x1 holes?
-    makeBlobs(40);
+    makeConnectedBlobs(30);
     smoothMap(1);
+    //onebitMap();
     compressMap(4);
     updateCollides();
+    actorOrigin.setLocation(findOccupyablePoint());
+    addPlayer((int)actorOrigin.getX(),(int)actorOrigin.getY());
+    initMobs(10); 
+    initCrates(20);
+  }
 
+  void initMobs(int n) {
+    for(int m=0;m<n;m++) {
+      Point mobOrigin = new Point(findOccupyablePoint());
+      actor.add(new Actor((int)mobOrigin.getX(),(int)mobOrigin.getY(),60,Actor.interaction.TALK));
+    }
+  }
+
+  void initCrates(int n) {
+    for(int c=0;c<n;c++) {
+      Point crateOrigin = new Point(findOccupyablePoint());
+      actor.add(new Actor((int)crateOrigin.getX(),(int)crateOrigin.getY(),80,Actor.interaction.PUSH));
+    }
+  }
+
+  // need to check for existing actor
+  Point findOccupyablePoint() {
+    Point p = new Point();
+    do {
+      p.setLocation(Math.random()*mapWd,Math.random()*mapHt);
+      System.out.println(p.toString());
+    } while(collides((int)p.getX(),(int)p.getY()));
+    return p;
+  }
+
+  void onebitMap() {
+    for(int r=0;r<mapHt;r++) {
+      for(int c=0;c<mapWd;c++) {
+        if(getElevation(c,r)>0) { getTile(c,r).setElevation(1); }
+      }
+    }
   }
 
   void chopMap(int chopElevation) {
@@ -80,6 +114,41 @@ public class Level {
       int rmX = (int)(Math.random()*(mapWd-1));
       int rmY = (int)(Math.random()*(mapHt-1));
       createBlob(rmX,rmY);
+    }
+  }
+
+  void makeConnectedBlobs(int b) {
+    Point[] thePoints = new Point[b];
+    int steps = 40;
+    for(int p=0;p<b;p++) {
+      thePoints[p] = new Point((int)(Math.random()*mapWd),(int)(Math.random()*mapHt));
+    }
+    for(int p=1;p<b;p++) {
+      int x0 = (int)thePoints[p-1].getX();
+      int y0 = (int)thePoints[p-1].getY();
+      int x1 = (int)thePoints[p].getX();
+      int y1 = (int)thePoints[p].getY();
+      double stepX = (x1 - x0) / steps;
+      double stepY = (y1 - y0) / steps;
+      for(int cs=0;cs<steps;cs++) {
+        double cx = x0 + (stepX * cs);
+        double cy = y0 + (stepY * cs);
+        createBlob((int)cx,(int)cy);
+      }
+    }
+  }
+
+  void createBlob(int x, int y) {
+    int blobWd = (int)(Math.random()*(mapWd/10))+3;
+    int blobHt = (int)(Math.random()*(mapHt/10))+3;
+    x=(x+blobWd)>mapWd?mapWd-x-1:x;
+    y=(y+blobHt)>mapHt?mapHt-y-1:y;
+
+    for(int r=y;r<y+blobHt;r++) {
+      for(int c=x;c<x+blobWd;c++) {
+        int theI = (int)Math.floor(Math.random()*maxElevation);
+        getTile(c,r).setElevation(theI);
+      }
     }
   }
 
@@ -127,25 +196,6 @@ public class Level {
   int              linearize(int x, int y)    { return((y*mapWd)+x);                }
   boolean          collides(int c, int r)     { return(getTile(c,r).collides());    }
 
-  void setTile(int x, int y, int i, boolean c, boolean r) {
-    int myIndex = linearize(x,y);
-    map.get(myIndex).setElevation(i);
-    map.get(myIndex).setCollide(c);
-    map.get(myIndex).setRaised(r);
-  }
 
-  void createBlob(int x, int y) {
-    int blobWd = (int)(Math.random()*(mapWd/6))+8;
-    int blobHt = (int)(Math.random()*(mapHt/6))+8;
-    x=(x+blobWd)>mapWd?mapWd-x-1:x;
-    y=(y+blobHt)>mapHt?mapHt-y-1:y;
-
-    for(int r=y;r<y+blobHt;r++) {
-      for(int c=x;c<x+blobWd;c++) {
-        int theI = (int)Math.floor(Math.random()*maxElevation);
-        getTile(c,r).setElevation(theI);
-      }
-    }
-  }
 
 }

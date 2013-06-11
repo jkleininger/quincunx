@@ -22,7 +22,6 @@ class TileSheet {
     _H      = _B.getHeight();
     _TILEWD = _W / _COLS;
     _TILEHT = _H / _ROWS;
-    System.out.println("This tilesheet appears to be " + _COLS + " columns by " + _ROWS + " rows.");
   }
 
   public BufferedImage getI() {
