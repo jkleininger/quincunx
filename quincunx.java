@@ -26,7 +26,7 @@ public class quincunx extends JPanel implements KeyListener {
     this.setFocusable(true);
     this.addKeyListener(this);
 
-    //theTiles    = new TileSheet("resources/height.png",10,10);
+    theTiles    = new TileSheet("resources/height.png",10,10);
     theTilesIso = new TileSheetIso("resources/5cubes.png",6,1);
 
     actors    = theLevel.getActors();
@@ -74,7 +74,7 @@ public class quincunx extends JPanel implements KeyListener {
   }
 
   protected void paintComponent(Graphics g) {
-    paintMapIso(g);
+    paintMapOrtho(g);
   }
 
   public static void main(String arg[]) throws IOException {

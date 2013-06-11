@@ -46,7 +46,7 @@ class TileSheetIso {
 
   void drawActor(Graphics g, int t, int x, int y, int e, ImageObserver IO) {
     int xt = (x * (_TILEWD / 2)) + (y * (_TILEWD / 2));
-    int yt = 128 + (y*(_TILEHT/4)) - (x * (_TILEHT / 4));
+    int yt = 128 + (y*(_TILEHT/4)) - (x * (_TILEHT / 4)) - (e * _TILEHT / 2);
     g.drawImage(this.getTile(t),xt,yt,IO);
   }
 

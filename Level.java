@@ -8,11 +8,11 @@ public class Level {
   int               mapHt;
   ArrayList<Actor>  actor = new ArrayList<Actor>();
   ArrayList<Tile>   map   = new ArrayList<Tile>();
-  int               maxElevation = 5;
+  int               maxElevation = 9;
 
   Point             actorOrigin = new Point(4,4);
 
-  int               pIndex = 5;
+  int               pIndex = 90;
 
   public Level() {
   }
@@ -48,10 +48,9 @@ public class Level {
 
     //flatten up from the bottom as well to eliminate 1x1 holes?
     makeBlobs(40);
-    //smoothMap(1);
-    //compressMap(4);
-    //chopMap(1);
-    //updateCollides();
+    smoothMap(1);
+    compressMap(4);
+    updateCollides();
 
   }
 
