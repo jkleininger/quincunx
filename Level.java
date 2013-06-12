@@ -10,8 +10,6 @@ public class Level {
   ArrayList<Tile>   map   = new ArrayList<Tile>();
   int               maxElevation = 9;
 
-  Point             actorOrigin = new Point(0,0);
-
   int               pIndex = 90;
 
   public Level() {
@@ -47,26 +45,23 @@ public class Level {
 
     makeConnectedBlobs(30);
     smoothMap(1);
-    //onebitMap();
     compressMap(4);
+    //onebitMap();
     updateCollides();
-    actorOrigin.setLocation(findOccupyablePoint());
-    addPlayer((int)actorOrigin.getX(),(int)actorOrigin.getY());
+    addPlayer(findOccupyablePoint());
     initMobs(10); 
     initCrates(20);
   }
 
   void initMobs(int n) {
     for(int m=0;m<n;m++) {
-      Point mobOrigin = new Point(findOccupyablePoint());
-      actor.add(new Actor((int)mobOrigin.getX(),(int)mobOrigin.getY(),60,Actor.interaction.TALK));
+      actor.add(new Actor(findOccupyablePoint(),60,Actor.interaction.TALK));
     }
   }
 
   void initCrates(int n) {
     for(int c=0;c<n;c++) {
-      Point crateOrigin = new Point(findOccupyablePoint());
-      actor.add(new Actor((int)crateOrigin.getX(),(int)crateOrigin.getY(),80,Actor.interaction.PUSH));
+      actor.add(new Actor(findOccupyablePoint(),80,Actor.interaction.PUSH));
     }
   }
 
@@ -74,7 +69,7 @@ public class Level {
   Point findOccupyablePoint() {
     Point p = new Point();
     do {
-      p.setLocation(Math.random()*mapWd,Math.random()*mapHt);
+      p.setLocation((int)(Math.random()*mapWd),(int)(Math.random()*mapHt));
       System.out.println(p.toString());
     } while(collides((int)p.getX(),(int)p.getY()));
     return p;
@@ -181,20 +176,25 @@ public class Level {
     return((int)(corners + sides + center));
   }
 
-  ArrayList<Actor> getActors()                { return actor;                       }
-  Actor            getActor(int a)            { return actor.get(a);                }
-  ArrayList<Tile>  getMap()                   { return map;                         }
-  int              getW()                     { return mapWd;                       }
-  int              getH()                     { return mapHt;                       }
-  Tile             getTile(int t)             { return map.get(t);                  }
-  Tile             getTile(int c, int r)      { return map.get(linearize(c,r));     }
-  int              getActorCount()            { return actor.size();                }
-  int              getElevation(int t)        { return map.get(t).getElevation();   }
-  int              getElevation(int c, int r) { return getTile(c,r).getElevation(); }
-  void             removeActor(Actor a)       { actor.remove(a);                    }
-  void             addPlayer(int x, int y)    { actor.add(new Actor(x,y,pIndex));   }
-  int              linearize(int x, int y)    { return((y*mapWd)+x);                }
-  boolean          collides(int c, int r)     { return(getTile(c,r).collides());    }
+  ArrayList<Actor> getActors()                { return actor;                               }
+  Actor            getActor(int a)            { return actor.get(a);                        }
+  ArrayList<Tile>  getMap()                   { return map;                                 }
+  int              getW()                     { return mapWd;                               }
+  int              getH()                     { return mapHt;                               }
+  Tile             getTile(int t)             { return map.get(t);                          }
+  Tile             getTile(int c, int r)      { return map.get(linearize(c,r));             }
+  Tile             getTile(Point p)           { return map.get(linearize(p));               }
+  int              getActorCount()            { return actor.size();                        }
+  int              getElevation(int t)        { return map.get(t).getElevation();           }
+  int              getElevation(Point p)      { return getTile(p).getElevation();           }
+  int              getElevation(int c, int r) { return getTile(c,r).getElevation();         }
+  void             removeActor(Actor a)       { actor.remove(a);                            }
+  void             addPlayer(Point p)         { actor.add(new Actor(p,pIndex));             }
+  int              linearize(int x, int y)    { return((y*mapWd)+x);                        }
+  int              linearize(Point p)         { return( (int)((p.getY()*mapWd)+p.getX()));  }
+  boolean          collides(int c, int r)     { return(getTile(c,r).collides());            }
+
+
 
 
 

@@ -12,36 +12,55 @@ class Actor extends Point {
   interaction _interaction = interaction.NONE;
   enum        interaction   { NONE, COLLIDE, PUSH, PULL, TALK, HIT, PORT }
   enum        facing        { N, S, E, W }
+  int         xDest        = 0;
+  int         yDest        = 0;
+  int         actionDelay  = 3;
+  int         actionTicker = 3;
+
+  /* ***** AI Types *********
+    0  do nothing
+    1  move toward player
+    2  move toward (xDest,yDest)
+    3  move random
+   ************************ */
 
   ArrayList<Integer> _inventory = new ArrayList<Integer>();
 
   // portal constructor
   public Actor(int x, int y, int t, int d) {
-    setLocation((double)x, (double)y);
+    setLocation(x,y);
     _index = t;
     _pdest = d;
     _interaction=interaction.PORT;
   }
 
-  // normal constructor
+  // normal xy constructor
   public Actor(int x, int y, int index, interaction i) {
-    setLocation((double)x, (double)y);
+    setLocation(x,y);
     _index = index;
     _interaction=i;
+    _ai = 1;
   }
 
-  public Actor(String[] args) {
-    _name=args[0];
-    setLocation(Integer.parseInt(args[1]),Integer.parseInt(args[2]));
-    _index=Integer.parseInt(args[3]);
-    _interaction=interaction.valueOf(args[4]);
-    _pdest=Integer.parseInt(args[5]);
+  // normal Point constructor
+  public Actor(Point p, int index, interaction i) {
+    setLocation(p);
+    _index = index;
+    _interaction=i;
+    _ai = 1;
   }
 
-  // add player
+  // add player xy
   public Actor(int x, int y, int i) {
     _name = "player";
     setLocation(x,y);
+    _index = i;
+  }
+
+  // add player Point
+  public Actor(Point p, int i) {
+    _name = "player";
+    setLocation(p);
     _index = i;
   }
 
@@ -54,6 +73,18 @@ class Actor extends Point {
   boolean isPortal()       { return(_pdest>0);    }
   int     getDest()        { return(_pdest);      }
   String  getName()        { return(_name);       }
+  int     getAI()          { return(_ai);         }
+  void    setAI(int ai)    { _ai = ai;            }
+
+  boolean canAct()         {
+    System.out.println("actionTicker: " + actionTicker);
+    if(actionTicker-- <= 0) {
+      actionTicker = actionDelay;
+      return(true);
+    } else {
+      return(false);
+    }
+  }
 
 }
 

@@ -65,12 +65,37 @@ public class quincunx extends JPanel implements KeyListener {
         if(VPORT.contains(c,r)) { theTiles.drawTile(g, theLevel.getElevation(i), c-XX, r-YY, this); }
       }
     }
+
+    updateActors();
+
     for(int a=(actors.size()-1);a>=0;a--) {
       if(VPORT.contains(actors.get(a))) {
         theTiles.drawTile(g,actors.get(a).getI(),((int)actors.get(a).getX()-XX),((int)actors.get(a).getY()-YY),this);
       }
     }
     //drawStatus(g, 321, 0);
+  }
+
+  void updateActors() {
+    for(int a=(actors.size()-1);a>0;a--) {
+      System.out.print(a + " ");
+      Actor thisActor = actors.get(a);
+      Point dst = new Point(thisActor.getLocation());
+      if(thisActor.canAct()) {
+        if(thisActor.getAI()==1) {
+          int deltaX = (int)actors.get(0).getX() - (int)thisActor.getX();
+          int deltaY = (int)actors.get(0).getY() - (int)thisActor.getY();
+          if(Math.abs(deltaX)>=Math.abs(deltaY)) {
+            dst.translate((int)Math.signum((double)deltaX),0);
+          } else {
+            dst.translate(0,(int)Math.signum((double)deltaY));
+          }
+          if(canMoveTo(thisActor.getLocation(),dst)) {
+            thisActor.move((int)dst.getX(),(int)dst.getY());
+          }
+        }
+      } 
+    }
   }
 
   protected void paintComponent(Graphics g) {
@@ -90,6 +115,7 @@ public class quincunx extends JPanel implements KeyListener {
   public void keyPressed(KeyEvent e) {
     Point t = new Point(0,0);  // move destination
     Point p = new Point(0,0);  // push destination
+    Point a = actors.get(0).getLocation();
     switch (e.getKeyCode()) {
       case KeyEvent.VK_LEFT:
         t.setLocation(-1,0);  p.setLocation(-2,0);
@@ -106,14 +132,14 @@ public class quincunx extends JPanel implements KeyListener {
       default:  // some other unused key
         return;
     }
-    t.translate((int)actors.get(0).getX(),(int)actors.get(0).getY());
-    p.translate((int)actors.get(0).getX(),(int)actors.get(0).getY());
+    t.translate((int)a.getX(),(int)a.getY());
+    p.translate((int)a.getX(),(int)a.getY());
 
     int q = isOccupied(t);
     if(q>0) {
       switch(actors.get(q).getInteraction()) {
         case PUSH:
-          if(canMoveTo(p)) {
+          if(canMoveTo(t,p)) {
             actors.get(0).setLocation(t);
             actors.get(q).setLocation(p);
           }
@@ -137,7 +163,7 @@ public class quincunx extends JPanel implements KeyListener {
       }
     }
     else {
-      if(canMoveTo(t)) {
+      if(canMoveTo(a,t)) {
         actors.get(0).setLocation(t);
       }
     }
@@ -149,17 +175,17 @@ public class quincunx extends JPanel implements KeyListener {
     g.fillRect(x, y, 100, 320);
   }
 
-  boolean canMoveTo(Point t) {
+  boolean canMoveTo(Point src, Point dst) {
     Rectangle r = new Rectangle(COLS,ROWS);
-    if(!r.contains(t)) { return(false); }
+    if(!r.contains(dst)) { return(false); }
 
-    int destHeight = theLevel.getElevation((int)t.getX(),(int)t.getY());
-    int srcHeight  = theLevel.getElevation( (int)actors.get(0).getX(), (int)actors.get(0).getY() );
-    if(Math.abs(destHeight-srcHeight) > 1) { return(false); }
+    int dstElevation = theLevel.getElevation(dst) ;
+    int srcElevation = theLevel.getElevation(src);
+    if(Math.abs(dstElevation-srcElevation) > 1) { return(false); }
     
-    if(theLevel.collides((int)t.getX(),(int)t.getY())) { return(false); }
+    if(theLevel.collides((int)dst.getX(),(int)dst.getY())) { return(false); }
     
-    int a = isOccupied(t);
+    int a = isOccupied(dst);
     if(a>0) { return(!actors.get(a).hasInteraction()); }
     return(true);
   }
