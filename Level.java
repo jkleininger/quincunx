@@ -133,6 +133,14 @@ public class Level {
     }
   }
 
+  void makeConnectedRooms(int r) {
+    Point[] thePoints = new Point[r];
+    for(int p=0;p<r;p++) {
+      int cX = (int)(Math.random()*mapWd);
+      int cY = (int)(Math.random()*mapHt);
+    }
+  }
+
   void createBlob(int x, int y) {
     int blobWd = (int)(Math.random()*(mapWd/10))+3;
     int blobHt = (int)(Math.random()*(mapHt/10))+3;

@@ -16,6 +16,7 @@ class Actor extends Point {
   int         yDest        = 0;
   int         actionDelay  = 3;
   int         actionTicker = 3;
+  int         brightness   = 0;
 
   /* ***** AI Types *********
     0  do nothing

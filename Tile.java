@@ -1,9 +1,10 @@
 import java.awt.Point;
 
 class Tile extends Point {
-  boolean  collide   = false;
-  boolean  raised    = false;  // true = actors move behind object
-  int      elevation = 0;      // -1 = bottomless pit?
+  boolean  collide    = false;
+  boolean  raised     = false;  // true = actors move behind object
+  int      elevation  = 0;
+  int      brightness = 0;
 
   public Tile(int x, int y, boolean c, boolean r, int e) {
     setLocation(x, y);
