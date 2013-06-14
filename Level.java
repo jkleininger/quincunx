@@ -43,7 +43,7 @@ public class Level {
       }
     }
 
-    makeConnectedBlobs(30);
+    makeConnectedBlobs(4);
     smoothMap(1);
     compressMap(4);
     //onebitMap();
@@ -114,7 +114,7 @@ public class Level {
 
   void makeConnectedBlobs(int b) {
     Point[] thePoints = new Point[b];
-    int steps = 40;
+    int steps = 3;
     for(int p=0;p<b;p++) {
       thePoints[p] = new Point((int)(Math.random()*mapWd),(int)(Math.random()*mapHt));
     }
@@ -125,9 +125,11 @@ public class Level {
       int y1 = (int)thePoints[p].getY();
       double stepX = (x1 - x0) / steps;
       double stepY = (y1 - y0) / steps;
+      double cx = x0;
+      double cy = y0;
       for(int cs=0;cs<steps;cs++) {
-        double cx = x0 + (stepX * cs);
-        double cy = y0 + (stepY * cs);
+        cx += stepX;
+        cy += stepY;
         createBlob((int)cx,(int)cy);
       }
     }
@@ -135,6 +137,8 @@ public class Level {
 
   void makeConnectedRooms(int r) {
     Point[] thePoints = new Point[r];
+    int pX = (int)(Math.random()*mapWd);
+    int pY = (int)(Math.random()*mapHt);
     for(int p=0;p<r;p++) {
       int cX = (int)(Math.random()*mapWd);
       int cY = (int)(Math.random()*mapHt);
