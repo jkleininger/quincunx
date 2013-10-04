@@ -3,15 +3,16 @@ import java.util.ArrayList;
 
 class Actor extends Point {
   String      _name;
-  int         _index;                // tile image index
+  int         _index;                      // tile image index
   int         _vradius     = 4;
-  int         _pdest       = 0;      // actor id of portal destination
-  int         _hp          = 100;    // hit points
-  int         _sp          = 100;    // special points
-  int         _ai          = 0;      // ai type
+  int         _pdest       = 0;            // actor id of portal destination
+  int         _hp          = 100;          // hit points
+  int         _sp          = 100;          // special points
+  ai          _ai          = ai.NONE;      // ai type
   interaction _interaction = interaction.NONE;
-  enum        interaction   { NONE, COLLIDE, PUSH, PULL, TALK, HIT, PORT }
-  enum        facing        { N, S, E, W }
+  enum        ai           { NONE, TOPLAYER, TOPOINT, TORANDOM }
+  enum        interaction  { NONE, COLLIDE, PUSH, PULL, TALK, HIT, PORT }
+  enum        facing       { N, S, E, W }
   int         xDest        = 0;
   int         yDest        = 0;
   int         actionDelay  = 3;
@@ -40,7 +41,7 @@ class Actor extends Point {
     setLocation(x,y);
     _index = index;
     _interaction=i;
-    _ai = 1;
+    _ai = ai.TOPLAYER;
   }
 
   // normal Point constructor
@@ -48,7 +49,7 @@ class Actor extends Point {
     setLocation(p);
     _index = index;
     _interaction=i;
-    _ai = 1;
+    _ai = ai.TOPLAYER;
   }
 
   // add player xy
@@ -67,24 +68,21 @@ class Actor extends Point {
 
   interaction getInteraction() { return(this._interaction); }
 
-  boolean hasInteraction() { return(this._interaction!=interaction.NONE); }
-  boolean canSee(Point p)  { return(this.distance(p)<=_vradius); }
+  boolean hasInteraction() { return(_interaction!=interaction.NONE); }
   int     getI()           { return(_index);      }
-  boolean isPushable()     { return(this._interaction==interaction.PUSH); }
+  boolean isPushable()     { return(_interaction==interaction.PUSH); }
   boolean isPortal()       { return(_pdest>0);    }
   int     getDest()        { return(_pdest);      }
   String  getName()        { return(_name);       }
-  int     getAI()          { return(_ai);         }
-  void    setAI(int ai)    { _ai = ai;            }
+  ai      getAI()          { return(_ai);         }
+  void    setAI(ai theai)  { _ai = theai;         }
 
   boolean canAct()         {
-    System.out.println("actionTicker: " + actionTicker);
     if(actionTicker-- <= 0) {
       actionTicker = actionDelay;
       return(true);
-    } else {
-      return(false);
     }
+    return(false);
   }
 
 }

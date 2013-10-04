@@ -62,7 +62,14 @@ public class quincunx extends JPanel implements KeyListener {
     for(int c=0;c<COLS;c++) {
       for(int r=0;r<ROWS;r++) {
         i = r*COLS + c;
-        if(VPORT.contains(c,r)) { theTiles.drawTile(g, theLevel.getElevation(i), c-XX, r-YY, this); }
+        if(VPORT.contains(c,r)) {
+          if( canSee(actors.get(0).getLocation(),new Point(c,r)) ) {
+            theTiles.drawTile(g, theLevel.getElevation(i), c-XX, r-YY, this);
+          } else {
+            theTiles.drawTile(g, 6, c-XX, r-YY, this);
+          }
+
+        }
       }
     }
 
@@ -78,11 +85,10 @@ public class quincunx extends JPanel implements KeyListener {
 
   void updateActors() {
     for(int a=(actors.size()-1);a>0;a--) {
-      System.out.print(a + " ");
       Actor thisActor = actors.get(a);
       Point dst = new Point(thisActor.getLocation());
       if(thisActor.canAct()) {
-        if(thisActor.getAI()==1) {
+        if(thisActor.getAI()==Actor.ai.TOPLAYER) {
           int deltaX = (int)actors.get(0).getX() - (int)thisActor.getX();
           int deltaY = (int)actors.get(0).getY() - (int)thisActor.getY();
           if(Math.abs(deltaX)>=Math.abs(deltaY)) {
@@ -113,6 +119,10 @@ public class quincunx extends JPanel implements KeyListener {
   }
 
   public void keyPressed(KeyEvent e) {
+    processKey(e);
+  }
+
+  public void processKey(KeyEvent e) {
     Point t = new Point(0,0);  // move destination
     Point p = new Point(0,0);  // push destination
     Point a = actors.get(0).getLocation();
@@ -196,6 +206,54 @@ public class quincunx extends JPanel implements KeyListener {
     }
     return(-1);
   }
+
+  boolean canSee(Point src, Point dst) {
+    int    x, y, x1, x2, y1, y2, dy, dx;
+    double m;
+
+    if(src.distance(dst) > DRADIUS) { return false; }
+
+    if(src.getX() > dst.getX()) {
+      x1 = (int)dst.getX();
+      y1 = (int)dst.getY();
+      x2 = (int)src.getX();
+      y2 = (int)src.getY();
+    } else {
+      x1 = (int)src.getX();
+      y1 = (int)src.getY();
+      x2 = (int)dst.getX();
+      y2 = (int)dst.getY();
+    }
+
+    dx = x1 - x2;
+    dy = y1 - y2;
+
+    if(Math.abs(dx) > Math.abs(dy)) {
+      m = (double)dy / (double)dx;
+      y = y1;
+      for(x=x1; x<x2; x++) {
+        if(theLevel.getElevation(x,y) == 0) { return false; }
+        y += m;
+      }
+    } else {
+      m = (double)dx / (double)dy;
+      x = x1;
+      if(y1 < y2) {
+        for(y=y1; y<y2 ; y++) {
+          if(theLevel.getElevation(x,y) == 0) { return false; }
+          x += m;
+        }
+      } else {
+        for(y=y1; y>y2 ; y--) {
+          if(theLevel.getElevation(x,y) == 0) { return false; }
+          x -= m;
+        }
+      }
+    }
+  
+    return true;
+  }
+
 
   int linearize(Point p) { return( (int)p.getY()*COLS + (int)p.getX() ); }
 

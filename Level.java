@@ -43,7 +43,7 @@ public class Level {
       }
     }
 
-    makeConnectedBlobs(4);
+    makeConnectedBlobs(40);
     smoothMap(1);
     compressMap(4);
     //onebitMap();
@@ -62,7 +62,8 @@ public class Level {
   void initCrates(int n) {
     for(int c=0;c<n;c++) {
       actor.add(new Actor(findOccupyablePoint(),80,Actor.interaction.PUSH));
-    }
+      actor.get(actor.size()-1).setAI(Actor.ai.NONE); 
+   }
   }
 
   // need to check for existing actor
