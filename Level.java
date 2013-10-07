@@ -46,7 +46,7 @@ public class Level {
     makeConnectedBlobs(40);
     smoothMap(1);
     compressMap(4);
-    //onebitMap();
+    onebitMap();
     updateCollides();
     addPlayer(findOccupyablePoint());
     initMobs(10); 
@@ -205,10 +205,10 @@ public class Level {
   void             addPlayer(Point p)         { actor.add(new Actor(p,pIndex));             }
   int              linearize(int x, int y)    { return((y*mapWd)+x);                        }
   int              linearize(Point p)         { return( (int)((p.getY()*mapWd)+p.getX()));  }
-  boolean          collides(int c, int r)     { return(getTile(c,r).collides());            }
-
-
-
-
-
+  boolean          collides(int c, int r)     { return getTile(c,r).collides();             }
+  boolean          isLOS(int c, int r)        { return getTile(c,r).isLOS();                }
+  void             setLOS(int c, int r)       { getTile(c,r).setLOS(true);                  }
+  void             clrLOS(int c, int r)       { getTile(c,r).setLOS(false);                 }
+  boolean          getSeen(int c, int r)      { return getTile(c,r).getSeen();              }
+  void             setSeen(int c, int r)      { getTile(c,r).setSeen();                     }
 }

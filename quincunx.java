@@ -59,16 +59,26 @@ public class quincunx extends JPanel implements KeyListener {
     if(YY<0) { YY=0; } else if((YY + VPORT.getHeight())>ROWS) { YY=ROWS-(int)VPORT.getHeight(); }
     VPORT.setLocation(XX,YY);
     int i = 0;
+
+    for(int c=0;c<COLS;c++) {
+      for(int r=0;r<ROWS;r++) {
+        if(VPORT.contains(c,r)) theLevel.clrLOS(c,r);
+      }
+    }
+
+    doFOV(actors.get(0));
+
     for(int c=0;c<COLS;c++) {
       for(int r=0;r<ROWS;r++) {
         i = r*COLS + c;
         if(VPORT.contains(c,r)) {
-          if( canSee(actors.get(0).getLocation(),new Point(c,r)) ) {
+          if( theLevel.isLOS(c,r) ) {
+            theTiles.drawTile(g, theLevel.getElevation(i) * 3, c-XX, r-YY, this);
+          } else if(theLevel.getSeen(c,r)) {
             theTiles.drawTile(g, theLevel.getElevation(i), c-XX, r-YY, this);
           } else {
-            theTiles.drawTile(g, 6, c-XX, r-YY, this);
+            theTiles.drawTile(g, 0, c-XX, r-YY, this);
           }
-
         }
       }
     }
@@ -77,7 +87,9 @@ public class quincunx extends JPanel implements KeyListener {
 
     for(int a=(actors.size()-1);a>=0;a--) {
       if(VPORT.contains(actors.get(a))) {
-        theTiles.drawTile(g,actors.get(a).getI(),((int)actors.get(a).getX()-XX),((int)actors.get(a).getY()-YY),this);
+        if(theLevel.isLOS((int)actors.get(a).getX(), (int)actors.get(a).getY() )) {
+          theTiles.drawTile(g,actors.get(a).getI(),((int)actors.get(a).getX()-XX),((int)actors.get(a).getY()-YY),this);
+        }
       }
     }
     //drawStatus(g, 321, 0);
@@ -207,53 +219,32 @@ public class quincunx extends JPanel implements KeyListener {
     return(-1);
   }
 
-  boolean canSee(Point src, Point dst) {
-    int    x, y, x1, x2, y1, y2, dy, dx;
-    double m;
+  void doFOV(Point src) {
+    double r;
+    double vx, vy;
+    double cx, cy;
+    double twoPI     = Math.PI * 2;
+    double oneDegree = twoPI / 360;
+    int    i;
 
-    if(src.distance(dst) > DRADIUS) { return false; }
+    for(r=0 ; r<twoPI ; r+=oneDegree) {
+      vx = Math.cos(r);
+      vy = Math.sin(r);
 
-    if(src.getX() > dst.getX()) {
-      x1 = (int)dst.getX();
-      y1 = (int)dst.getY();
-      x2 = (int)src.getX();
-      y2 = (int)src.getY();
-    } else {
-      x1 = (int)src.getX();
-      y1 = (int)src.getY();
-      x2 = (int)dst.getX();
-      y2 = (int)dst.getY();
+      cx = src.getX();
+      cy = src.getY();
+
+      for(i=0 ; i<DRADIUS ; i++) {
+        theLevel.setLOS((int)cx,(int)cy);
+        theLevel.setSeen((int)cx,(int)cy);
+        if(theLevel.getElevation((int)cx,(int)cy)==0) break;
+        cx+=vx;
+        cy+=vy;
+      }
+
     }
 
-    dx = x1 - x2;
-    dy = y1 - y2;
-
-    if(Math.abs(dx) > Math.abs(dy)) {
-      m = (double)dy / (double)dx;
-      y = y1;
-      for(x=x1; x<x2; x++) {
-        if(theLevel.getElevation(x,y) == 0) { return false; }
-        y += m;
-      }
-    } else {
-      m = (double)dx / (double)dy;
-      x = x1;
-      if(y1 < y2) {
-        for(y=y1; y<y2 ; y++) {
-          if(theLevel.getElevation(x,y) == 0) { return false; }
-          x += m;
-        }
-      } else {
-        for(y=y1; y>y2 ; y--) {
-          if(theLevel.getElevation(x,y) == 0) { return false; }
-          x -= m;
-        }
-      }
-    }
-  
-    return true;
   }
-
 
   int linearize(Point p) { return( (int)p.getY()*COLS + (int)p.getX() ); }
 
