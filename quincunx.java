@@ -9,8 +9,9 @@ import java.io.*;
 
 public class quincunx extends JPanel implements KeyListener {
 
-  static int       DRADIUS   = 15;
+  static int       DRADIUS   = 15; //viewport size
   int              DRADNEG   = (-1) * DRADIUS;
+  static int       VRADIUS   = 10;  //sight distance
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
 
   TileSheet        theTiles;
@@ -234,12 +235,14 @@ public class quincunx extends JPanel implements KeyListener {
       cx = src.getX();
       cy = src.getY();
 
-      for(i=0 ; i<DRADIUS ; i++) {
-        theLevel.setLOS((int)cx,(int)cy);
-        theLevel.setSeen((int)cx,(int)cy);
-        if(theLevel.getElevation((int)cx,(int)cy)==0) break;
-        cx+=vx;
-        cy+=vy;
+      if(VPORT.contains(cx,cy)) {
+        for(i=0 ; i<VRADIUS ; i++) {
+          theLevel.setLOS((int)cx,(int)cy);
+          theLevel.setSeen((int)cx,(int)cy);
+          if(theLevel.getElevation((int)cx,(int)cy)==0) break;
+          cx+=vx;
+          cy+=vy;
+        }
       }
 
     }
