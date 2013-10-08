@@ -1,6 +1,9 @@
 import java.io.*;
 import java.util.*;
 import java.awt.Point;
+import java.awt.image.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 
 public class Level {
 
@@ -11,6 +14,14 @@ public class Level {
   int               maxElevation = 9;
 
   int               pIndex = 90;
+
+  BufferedImage     bimg;
+  Graphics2D        theG;
+
+  int               cellIterations = 5;
+
+  int cDead  = new Color(0,0,0).getRGB();
+  int cAlive = new Color(128,128,128).getRGB();
 
   public Level() {
   }
@@ -31,6 +42,11 @@ public class Level {
   }
 
   void initialize(int w, int h) {
+    bimg = new BufferedImage(mapWd,mapHt,BufferedImage.TYPE_INT_RGB);
+    theG = bimg.createGraphics();
+
+    genPixelMap();
+
     map.clear();
     map.ensureCapacity(w*h);
     actor.clear();
@@ -71,7 +87,6 @@ public class Level {
     Point p = new Point();
     do {
       p.setLocation((int)(Math.random()*mapWd),(int)(Math.random()*mapHt));
-      System.out.println(p.toString());
     } while(collides((int)p.getX(),(int)p.getY()));
     return p;
   }
@@ -147,6 +162,7 @@ public class Level {
   }
 
   void createBlob(int x, int y) {
+    int theI = 0;
     int blobWd = (int)(Math.random()*(mapWd/10))+3;
     int blobHt = (int)(Math.random()*(mapHt/10))+3;
     x=(x+blobWd)>mapWd?mapWd-x-1:x;
@@ -154,10 +170,11 @@ public class Level {
 
     for(int r=y;r<y+blobHt;r++) {
       for(int c=x;c<x+blobWd;c++) {
-        int theI = (int)Math.floor(Math.random()*maxElevation);
+        theI = (int)Math.floor(Math.random()*maxElevation);
         getTile(c,r).setElevation(theI);
       }
     }
+
   }
 
   void smoothMap(int iterations) {
@@ -189,6 +206,109 @@ public class Level {
     return((int)(corners + sides + center));
   }
 
+  void genPixelMap() {
+    double prob = .3;
+    
+    for(int c=0 ; c<mapWd ; c++) {
+      for(int r=0 ; r<mapHt ; r++) {
+        if(Math.random() < prob) { 
+          bimg.setRGB(c,r,cAlive);
+        }
+      }
+    }
+
+    bimg = iterateCells(bimg);
+    bimg = iterateCells(bimg);
+    bimg = iterateCells(bimg);
+    bimg = iterateCells(bimg);
+    bimg = iterateCells(bimg);
+    bimg = iterateCells(bimg);
+    bimg = iterateCells(bimg);
+    bimg = iterateCells(bimg);
+
+  }
+
+  BufferedImage iterateCells(BufferedImage inImg) {
+    BufferedImage outImg = new BufferedImage(mapWd,mapHt,BufferedImage.TYPE_INT_RGB);
+    for(int c=1 ; c<(mapWd-1) ; c++) {
+      for(int r=1 ; r<(mapHt-1) ; r++) {
+        int neighbors = countNeighbors(bimg,c,r);
+        if(inImg.getRGB(c,r)!=cDead) {
+          outImg.setRGB(c,r,judge(neighbors));
+        } else {
+          if(neighbors==3) outImg.setRGB(c,r,cAlive);
+        }
+      }
+    }
+    return outImg;
+  }
+
+
+
+  int countNeighbors(BufferedImage b, int x, int y) {
+    int[] n = new int[9];
+    n[0] = b.getRGB(x-1,y-1) == cAlive ? 1 : 0;
+    n[1] = b.getRGB(x,  y-1) == cAlive ? 1 : 0;
+    n[2] = b.getRGB(x+1,y-1) == cAlive ? 1 : 0;
+    n[3] = b.getRGB(x-1,y)   == cAlive ? 1 : 0;
+    n[5] = b.getRGB(x+1,y)   == cAlive ? 1 : 0;
+    n[6] = b.getRGB(x-1,y+1) == cAlive ? 1 : 0;
+    n[7] = b.getRGB(x,  y+1) == cAlive ? 1 : 0;
+    n[8] = b.getRGB(x+1,y+1) == cAlive ? 1 : 0;
+
+    n[4] = n[0]+n[1]+n[2]+n[3]+n[5]+n[6]+n[7]+n[8];
+    System.out.print(n[4] + " *** ");
+
+    return n[4];
+  }
+
+  int judge(int neighbors) {
+    switch(neighbors) {
+      case 0:
+        return cDead;
+      case 1:
+        return cDead;
+      case 2:
+        return cAlive;
+      case 3:
+        return cAlive;
+      case 4:
+        return cDead;
+      case 5:
+        return cDead;
+      case 6:
+        return cDead;
+      case 7:
+        return cDead;
+      case 8:
+        return cDead;
+      default:
+        break;
+    }
+    return(new Color(255,255,255).getRGB());
+  }
+
+
+
+  // this section on hold, was just a thought
+  //Polygon makePolyRoom(int w, int h) {
+  //  Polygon thePoly = new Polygon();
+  //  thePoly.addPoint(0,0);
+  //  thePoly.addPoint(w,0);
+  //  thePoly.addPoint(w,h);
+  //  thePoly.addPoint(0,h);
+  //  return thePoly;
+  //}
+  //
+  //void addShapeToMap(Polygon thePoly) {
+  //  for(int c=0 ; c<mapWd ; c++) {
+  //    for(int r=0 ; r<mapHt ; r++) {
+  //      if(thePoly.contains(c,r) getTile(c,r).setElevation(1);
+  //    }
+  //  }
+  //}
+  // end just a thought
+
   ArrayList<Actor> getActors()                { return actor;                               }
   Actor            getActor(int a)            { return actor.get(a);                        }
   ArrayList<Tile>  getMap()                   { return map;                                 }
@@ -211,4 +331,7 @@ public class Level {
   void             clrLOS(int c, int r)       { getTile(c,r).setLOS(false);                 }
   boolean          getSeen(int c, int r)      { return getTile(c,r).getSeen();              }
   void             setSeen(int c, int r)      { getTile(c,r).setSeen();                     }
+
+  BufferedImage    getRawImage()              { return bimg;                                }
 }
+

@@ -11,7 +11,7 @@ public class quincunx extends JPanel implements KeyListener {
 
   static int       DRADIUS   = 15; //viewport size
   int              DRADNEG   = (-1) * DRADIUS;
-  static int       VRADIUS   = 10;  //sight distance
+  static int       VRADIUS   = 5;  //sight distance
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
 
   TileSheet        theTiles;
@@ -93,7 +93,7 @@ public class quincunx extends JPanel implements KeyListener {
         }
       }
     }
-    //drawStatus(g, 321, 0);
+    drawStatus(g, 321, 0);
   }
 
   void updateActors() {
@@ -194,8 +194,10 @@ public class quincunx extends JPanel implements KeyListener {
   }
 
   void drawStatus(Graphics g, int x, int y) {
-    g.setColor(new Color(30,30,30));
-    g.fillRect(x, y, 100, 320);
+    g.setColor(new Color(255,200,0));
+    g.fillRect(x, y, 104, 104);
+    g.drawImage(theLevel.getRawImage(),x+2,y+2,this);
+    g.drawRect((int)VPORT.getX()+x, (int)VPORT.getY()+y, (int)VPORT.getWidth(), (int)VPORT.getHeight() );
   }
 
   boolean canMoveTo(Point src, Point dst) {
@@ -232,8 +234,8 @@ public class quincunx extends JPanel implements KeyListener {
       vx = Math.cos(r);
       vy = Math.sin(r);
 
-      cx = src.getX();
-      cy = src.getY();
+      cx = src.getX() + .5;
+      cy = src.getY() + .5;
 
       if(VPORT.contains(cx,cy)) {
         for(i=0 ; i<VRADIUS ; i++) {
