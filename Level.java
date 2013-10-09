@@ -11,17 +11,28 @@ public class Level {
   int               mapHt;
   ArrayList<Actor>  actor = new ArrayList<Actor>();
   ArrayList<Tile>   map   = new ArrayList<Tile>();
-  int               maxElevation = 9;
+  int               maxElevation = 3;
 
   int               pIndex = 90;
 
   BufferedImage     bimg;
   Graphics2D        theG;
 
-  int               cellIterations = 5;
+  int               cellIterations = 6;
 
-  int cDead  = new Color(0,0,0).getRGB();
-  int cAlive = new Color(128,128,128).getRGB();
+  int cWall  = new Color(0,0,0).getRGB();
+  int cFloor = new Color(128,128,128).getRGB();
+  
+  int[] cRules = { cWall,
+                   cWall,
+                   cWall,
+                   cFloor,
+                   cFloor,
+                   cFloor,
+                   cFloor,
+                   cFloor,
+                   cFloor
+                 };
 
   public Level() {
   }
@@ -45,28 +56,25 @@ public class Level {
     bimg = new BufferedImage(mapWd,mapHt,BufferedImage.TYPE_INT_RGB);
     theG = bimg.createGraphics();
 
-    genPixelMap();
-
     map.clear();
     map.ensureCapacity(w*h);
     actor.clear();
     mapWd = w;
     mapHt = h;
-    int r,c;
-    for(r=0;r<h;r++) {
-      for(c=0;c<w;c++) {
-        map.add(new Tile(c,r,true,false,0));
-      }
-    }
 
-    makeConnectedBlobs(40);
-    smoothMap(1);
-    compressMap(4);
-    onebitMap();
-    updateCollides();
+    genPixelMap();
+    //bimg = smoothImg(bimg,1);
+
+    getTilesFromImg(bimg);
+
+
+    //makeConnectedBlobs(40);
+    //compressMap(4);
+    //onebitMap();
+    //updateCollides();
     addPlayer(findOccupyablePoint());
-    initMobs(10); 
-    initCrates(20);
+    //initMobs(10); 
+    //initCrates(20);
   }
 
   void initMobs(int n) {
@@ -177,14 +185,18 @@ public class Level {
 
   }
 
-  void smoothMap(int iterations) {
+  BufferedImage smoothImg(BufferedImage inImg, int iterations) {
+    BufferedImage outImg = new BufferedImage(mapWd,mapHt,BufferedImage.TYPE_INT_RGB);
     for(int i=0;i<iterations;i++) {
       for(int r=1;r<mapHt-1;r++) {
         for(int c=1;c<mapWd-1;c++) {
-          map.get(linearize(c,r)).setElevation(smoothPoint(c,r));
+          int smoothed = smoothPoint(inImg,c,r);
+          outImg.setRGB(c,r,smoothed);
+          //map.get(linearize(c,r)).setElevation(smoothPoint(c,r));
         }
       }
     } 
+    return outImg;
   }
 
   void updateCollides() {
@@ -198,116 +210,89 @@ public class Level {
     }
   }
 
-  int smoothPoint(int x, int y) {
-    float corners = ( getElevation(x-1,y-1) + getElevation(x+1,y-1) + getElevation(x-1,y+1) + getElevation(x+1,y+1) ) / 16;
-    float sides   = ( getElevation(x-1,y)   + getElevation(x+1,y)   + getElevation(x,y-1)   + getElevation(x,y+1)   ) / 8;
-    float center  = ( getElevation(x,y) ) / 4 ;
+  int smoothPoint(BufferedImage b, int x, int y) {
+    float corners = ( b.getRGB(x-1,y-1) + b.getRGB(x-1,y+1) + b.getRGB(x+1,y-1) + b.getRGB(x+1,y+1) ) / 16;
+    float sides   = ( b.getRGB(x-1,y)   + b.getRGB(x+1,y)   + b.getRGB(x,y-1)   + b.getRGB(x,y+1)   ) / 8;
+    float center  = ( b.getRGB(x,y) ) / 4;
+    //float corners = ( getElevation(x-1,y-1) + getElevation(x+1,y-1) + getElevation(x-1,y+1) + getElevation(x+1,y+1) ) / 16;
+    //float sides   = ( getElevation(x-1,y)   + getElevation(x+1,y)   + getElevation(x,y-1)   + getElevation(x,y+1)   ) / 8;
+    //float center  = ( getElevation(x,y) ) / 4 ;
 
     return((int)(corners + sides + center));
   }
 
   void genPixelMap() {
-    double prob = .3;
+    double prob = .5;
     
     for(int c=0 ; c<mapWd ; c++) {
       for(int r=0 ; r<mapHt ; r++) {
         if(Math.random() < prob) { 
-          bimg.setRGB(c,r,cAlive);
+          bimg.setRGB(c,r,cFloor);
         }
       }
     }
 
-    bimg = iterateCells(bimg);
-    bimg = iterateCells(bimg);
-    bimg = iterateCells(bimg);
-    bimg = iterateCells(bimg);
-    bimg = iterateCells(bimg);
-    bimg = iterateCells(bimg);
-    bimg = iterateCells(bimg);
-    bimg = iterateCells(bimg);
-
+    for(int i=0 ; i<cellIterations ; i++) { 
+      bimg = iterateCells(bimg);
+    }
   }
 
   BufferedImage iterateCells(BufferedImage inImg) {
     BufferedImage outImg = new BufferedImage(mapWd,mapHt,BufferedImage.TYPE_INT_RGB);
+    int outTile = 0;
     for(int c=1 ; c<(mapWd-1) ; c++) {
       for(int r=1 ; r<(mapHt-1) ; r++) {
         int neighbors = countNeighbors(bimg,c,r);
-        if(inImg.getRGB(c,r)!=cDead) {
-          outImg.setRGB(c,r,judge(neighbors));
-        } else {
-          if(neighbors==3) outImg.setRGB(c,r,cAlive);
+        int tiletype = inImg.getRGB(c,r);
+
+        if(tiletype==cWall) {
+          if(neighbors>=4) { outTile = cWall; } else { outTile = cFloor; };
+        } else if(tiletype==cFloor) {
+          if(neighbors>=5) { outTile = cWall; } else { outTile = cFloor; };
         }
+        outImg.setRGB(c,r,outTile);
+
       }
     }
     return outImg;
   }
 
-
-
   int countNeighbors(BufferedImage b, int x, int y) {
-    int[] n = new int[9];
-    n[0] = b.getRGB(x-1,y-1) == cAlive ? 1 : 0;
-    n[1] = b.getRGB(x,  y-1) == cAlive ? 1 : 0;
-    n[2] = b.getRGB(x+1,y-1) == cAlive ? 1 : 0;
-    n[3] = b.getRGB(x-1,y)   == cAlive ? 1 : 0;
-    n[5] = b.getRGB(x+1,y)   == cAlive ? 1 : 0;
-    n[6] = b.getRGB(x-1,y+1) == cAlive ? 1 : 0;
-    n[7] = b.getRGB(x,  y+1) == cAlive ? 1 : 0;
-    n[8] = b.getRGB(x+1,y+1) == cAlive ? 1 : 0;
+    int   num = 0;
+    int[] n   = new int[9];
 
-    n[4] = n[0]+n[1]+n[2]+n[3]+n[5]+n[6]+n[7]+n[8];
-    System.out.print(n[4] + " *** ");
+    n[0] = b.getRGB(x-1,y-1) == cWall ? 1 : 0;
+    n[1] = b.getRGB(x,  y-1) == cWall ? 1 : 0;
+    n[2] = b.getRGB(x+1,y-1) == cWall ? 1 : 0;
+    n[3] = b.getRGB(x-1,y)   == cWall ? 1 : 0;
+    n[4] = b.getRGB(x,  y);
+    n[5] = b.getRGB(x+1,y)   == cWall ? 1 : 0;
+    n[6] = b.getRGB(x-1,y+1) == cWall ? 1 : 0;
+    n[7] = b.getRGB(x,  y+1) == cWall ? 1 : 0;
+    n[8] = b.getRGB(x+1,y+1) == cWall ? 1 : 0;
 
-    return n[4];
+    num = n[0]+n[1]+n[2]+n[3]+n[5]+n[6]+n[7]+n[8];
+
+    return num;
   }
 
-  int judge(int neighbors) {
-    switch(neighbors) {
-      case 0:
-        return cDead;
-      case 1:
-        return cDead;
-      case 2:
-        return cAlive;
-      case 3:
-        return cAlive;
-      case 4:
-        return cDead;
-      case 5:
-        return cDead;
-      case 6:
-        return cDead;
-      case 7:
-        return cDead;
-      case 8:
-        return cDead;
-      default:
-        break;
+  int judge(int neighbors, int rule) {
+    if(neighbors<=rule) { return cWall; } else { return cFloor; }
+  }
+
+  void getTilesFromImg(BufferedImage b) {
+    int thisElevation = 0;
+    for(int r=0 ; r<(mapHt) ; r++) {
+      for(int c=0 ; c<(mapWd) ; c++) {
+        int i = b.getRGB(c,r);
+        if(i==cWall) {
+          map.add(new Tile(c,r,true,false,0));
+        } else if(i==cFloor) {
+          map.add(new Tile(c,r,false,false,1));
+        }
+      }
     }
-    return(new Color(255,255,255).getRGB());
   }
-
-
-
-  // this section on hold, was just a thought
-  //Polygon makePolyRoom(int w, int h) {
-  //  Polygon thePoly = new Polygon();
-  //  thePoly.addPoint(0,0);
-  //  thePoly.addPoint(w,0);
-  //  thePoly.addPoint(w,h);
-  //  thePoly.addPoint(0,h);
-  //  return thePoly;
-  //}
-  //
-  //void addShapeToMap(Polygon thePoly) {
-  //  for(int c=0 ; c<mapWd ; c++) {
-  //    for(int r=0 ; r<mapHt ; r++) {
-  //      if(thePoly.contains(c,r) getTile(c,r).setElevation(1);
-  //    }
-  //  }
-  //}
-  // end just a thought
 
   ArrayList<Actor> getActors()                { return actor;                               }
   Actor            getActor(int a)            { return actor.get(a);                        }
