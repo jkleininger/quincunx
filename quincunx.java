@@ -13,6 +13,7 @@ public class quincunx extends JPanel implements KeyListener {
   int              DRADNEG   = (-1) * DRADIUS;
   static int       VRADIUS   = 5;  //sight distance
   Rectangle        VPORT     = new Rectangle(DRADIUS*2,DRADIUS*2);
+  Rectangle        MPORT;
 
   TileSheet        theTiles;
   Level            theLevel  = new Level(true);
@@ -32,6 +33,8 @@ public class quincunx extends JPanel implements KeyListener {
 
     COLS      = theLevel.getW();
     ROWS      = theLevel.getH();
+
+    MPORT     = new Rectangle(COLS,ROWS);
 
   }
 
@@ -237,7 +240,7 @@ public class quincunx extends JPanel implements KeyListener {
       cx = src.getX() + .5;
       cy = src.getY() + .5;
 
-      if(VPORT.contains(cx,cy)) {
+      if(VPORT.contains(cx,cy) && MPORT.contains(cx,cy)) {
         for(i=0 ; i<VRADIUS ; i++) {
           theLevel.setLOS((int)cx,(int)cy);
           theLevel.setSeen((int)cx,(int)cy);
