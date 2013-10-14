@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.image.*;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 public class Level {
 
@@ -49,8 +50,8 @@ public class Level {
     mapWd = w;
     mapHt = h;
 
-    genMap(map, 1, maxElevation);
-    makeConnectedBlobs(40);
+    genMap(map, .5, maxElevation);
+    makeBlobs(10,false);
     //chopMap(map,4);
     //smoothMap(map,1);
 
@@ -130,31 +131,52 @@ public class Level {
     //chopMap(levels-1);
   }
 
-  void makeBlobs(int b) {
-    for(int n=0;n<b;n++) {
-      int rmX = (int)(Math.random()*(mapWd-1));
-      int rmY = (int)(Math.random()*(mapHt-1));
-      createBlob(rmX,rmY);
+  void makeSquareRooms(int n) {
+    int maxW = 12;
+    int minW = 5;
+    int maxH = 10;
+    int minH = 4;
+
+    Rectangle[] theRect = new Rectangle[n];
+
+    for(int p=0 ; p<n ; p++) {
+      int x = 0;
+      int y = 0;
+      //int x = (int)Math.random()*mapWd;
+      //int y = (int)Math.random()*mapHt;
+      int w = (int)(Math.random()*(maxW-minW))+minW;
+      int h = (int)(Math.random()*(maxH-minH))+minH;
+
+      theRect[p] = new Rectangle(x,y,w,h);
     }
   }
 
-  void makeConnectedBlobs(int b) {
+
+
+
+  void makeBlobs(int b, boolean connected) {
     Point[] thePoints = new Point[b];
-    int steps = 15;
+    int steps = connected?15:2;
     for(int p=0;p<b;p++) {
       thePoints[p] = new Point((int)(Math.random()*mapWd),(int)(Math.random()*mapHt));
     }
-    for(int p=1;p<b;p++) {
-      int x0 = (int)thePoints[p-1].getX();
-      int y0 = (int)thePoints[p-1].getY();
-      int x1 = (int)thePoints[p].getX();
-      int y1 = (int)thePoints[p].getY();
-      double stepX = (x1 - x0) / steps;
-      double stepY = (y1 - y0) / steps;
-      double cx = x0;
-      double cy = y0;
-      for(int cs=0;cs<steps;cs++) {
-        createBlob((int)(cx+(stepX*cs)),(int)(cy+(stepY*cs)));
+    if(connected) {
+      for(int p=1;p<b;p++) {
+        int x0 = (int)thePoints[p-1].getX();
+        int y0 = (int)thePoints[p-1].getY();
+        int x1 = (int)thePoints[p].getX();
+        int y1 = (int)thePoints[p].getY();
+        double stepX = (x1 - x0) / steps;
+        double stepY = (y1 - y0) / steps;
+        double cx = x0;
+        double cy = y0;
+        for(int cs=0;cs<steps;cs++) {
+          createBlob((int)(cx+(stepX*cs)),(int)(cy+(stepY*cs)));
+        }
+      }
+    } else {
+      for(int n=0 ; n<b ; n++) {
+        createBlob((int)thePoints[n].getX(),(int)thePoints[n].getY());
       }
     }
   }
@@ -169,25 +191,39 @@ public class Level {
     }
   }
 
+  double getRadius(double a, double b) {
+    return(Math.sqrt(Math.pow(a,2) + Math.pow(b,2)));
+  }
+
   void createBlob(int x, int y) {
     int theI = 0;
+    Rectangle mapRect  = new Rectangle(1,1,mapWd-2,mapHt-2);
+    Rectangle blobRect;
 
-    //double xr = mapWd / (2 * Math.abs(x-(mapWd/2)));
-    //double yr = mapHt / (2 * Math.abs(x-(mapHt/2)));
+    double thisRadius = getRadius( x-(mapWd/2) , y-(mapHt/2) );
+    double maxRadius  = getRadius( mapWd       ,  + mapHt ) / 1.5;
+    thisRadius = thisRadius<=1?1:thisRadius;
 
-    int blobWd = (int)(Math.random()*(mapWd/15))+2;
-    int blobHt = (int)(Math.random()*(mapHt/15))+2;
+    double blobSize = (1 - (thisRadius / maxRadius)) * 20;
+    blobSize=blobSize<1?1:blobSize;
 
-    //int blobWd = (int)((xr * 10) + 3);
-    //int blobHt = (int)((yr * 10) + 3);
+    blobRect = new Rectangle(x,y,(int)blobSize,(int)blobSize);
+    blobRect.translate( (int)(-0.5*blobSize) , (int)(-0.5*blobSize) );
 
-    x=(x+blobWd)>mapWd?mapWd-x-1:x;
-    y=(y+blobHt)>mapHt?mapHt-y-1:y;
+    int rx0 = (int)blobRect.getX();
+    int rx1 = rx0 + (int)blobRect.getWidth();
+    int ry0 = (int)blobRect.getY();
+    int ry1 = ry0 + (int)blobRect.getHeight();
 
-    for(int r=y;r<y+blobHt;r++) {
-      for(int c=x;c<x+blobWd;c++) {
-        theI = (int)Math.floor(Math.random()*maxElevation)+1;
-        getTile(c,r).setElevation(theI);
+    blobRect = blobRect.intersection(mapRect);
+    System.out.println(blobRect.toString());
+
+    if(blobRect.getWidth()<1) return;
+
+    for(int c=rx0 ; c<rx1 ; c++) {
+      for(int r=ry0 ; r<ry1 ; r++) {
+        theI = (int)Math.floor(Math.random() * maxElevation)+1;
+        if(c>=0 && c<mapWd && r>=0 && r<mapHt) getTile(c,r).setElevation(theI);
       }
     }
 
