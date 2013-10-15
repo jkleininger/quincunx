@@ -181,16 +181,6 @@ public class Level {
     }
   }
 
-  void makeConnectedRooms(int r) {
-    Point[] thePoints = new Point[r];
-    int pX = (int)(Math.random()*mapWd);
-    int pY = (int)(Math.random()*mapHt);
-    for(int p=0;p<r;p++) {
-      int cX = (int)(Math.random()*mapWd);
-      int cY = (int)(Math.random()*mapHt);
-    }
-  }
-
   double getRadius(double a, double b) {
     return(Math.sqrt(Math.pow(a,2) + Math.pow(b,2)));
   }
@@ -255,7 +245,9 @@ public class Level {
     float sides   = ( getElevation(m, x-1,y)   + getElevation(m, x+1,y)   + getElevation(m, x,y-1)   + getElevation(m, x,y+1)   ) / 8;
     float center  = ( getElevation(m, x,y) ) / 4 ;
 
-    if(center==0) { return 0; } else { return (int)(corners+sides+center); }
+    return center==0?0:(int)(corners+sides+center);
+
+    //if(center==0) { return 0; } else { return (int)(corners+sides+center); }
 
   }
 
